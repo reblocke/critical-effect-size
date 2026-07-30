@@ -85,7 +85,34 @@ function horizontalShape(y, color, dash = "dot", width = 1) {
   };
 }
 
-function criticalMarkerTrace(solutions, label, color, textPositions) {
+const COMPACT_PLOT_MAX_WIDTH = 480;
+
+function availablePlotWidth(plot) {
+  const renderedWidth = plot.getBoundingClientRect().width;
+  if (renderedWidth > 0) {
+    return renderedWidth;
+  }
+  const container = plot.closest(".results");
+  if (!container) {
+    return 0;
+  }
+  const style = globalThis.getComputedStyle(container);
+  return Math.max(
+    0,
+    container.clientWidth -
+      Number.parseFloat(style.paddingLeft) -
+      Number.parseFloat(style.paddingRight),
+  );
+}
+
+export function plotUsesCompactLayout(
+  plot,
+  width = availablePlotWidth(plot),
+) {
+  return width > 0 && width <= COMPACT_PLOT_MAX_WIDTH;
+}
+
+function criticalMarkerTrace(solutions, label, color, textPositions, compact) {
   const samePoint =
     solutions.length > 1 &&
     solutions.every(
@@ -103,9 +130,9 @@ function criticalMarkerTrace(solutions, label, color, textPositions) {
       size: 10,
       symbol: "circle",
     },
-    mode: "markers+text",
+    mode: compact ? "markers" : "markers+text",
     name: label,
-    showlegend: false,
+    showlegend: compact,
     text: points.map((solution) =>
       samePoint ? `${label} (both directions)` : `${label} (${solution.direction})`,
     ),
@@ -117,7 +144,7 @@ function criticalMarkerTrace(solutions, label, color, textPositions) {
   };
 }
 
-async function renderPlot(response, plot) {
+export async function renderPlot(response, plot, options = {}) {
   if (!globalThis.Plotly) {
     throw new Error("The plotting library did not load.");
   }
@@ -125,6 +152,10 @@ async function renderPlot(response, plot) {
   const multiplier = response.precision.information_multiplier;
   const samePrecision =
     response.precision.current_se_working === response.precision.scenario_se_working;
+  const compact = options.compact ?? plotUsesCompactLayout(plot);
+  const renderMode = options.renderMode ?? "live";
+  const renderHeight = options.height ?? (compact ? 700 : 620);
+  const renderWidth = options.width ?? null;
   const traces = [
     {
       hovertemplate:
@@ -157,6 +188,7 @@ async function renderPlot(response, plot) {
       "Exact current",
       "#145e6b",
       ["top right", "top left"],
+      compact,
     ),
   );
   if (!samePrecision) {
@@ -166,15 +198,16 @@ async function renderPlot(response, plot) {
         `Exact ${formatNumber(multiplier)}x info`,
         "#9b4d00",
         ["bottom left", "bottom right"],
+        compact,
       ),
     );
   }
   traces.push({
     hovertemplate: "Null: %{x:.6g}<br>Probability: %{y:.3%}<extra></extra>",
     marker: { color: "#17202a", size: 9, symbol: "x" },
-    mode: "markers+text",
+    mode: compact ? "markers" : "markers+text",
     name: "Null",
-    showlegend: false,
+    showlegend: compact,
     text: ["Null"],
     textfont: { color: "#17202a", size: 11 },
     textposition: "top center",
@@ -188,9 +221,9 @@ async function renderPlot(response, plot) {
       hovertemplate:
         "Meaningful scenario: %{x:.6g}<br>Current probability: %{y:.3%}<extra></extra>",
       marker: { color: "#477a1f", size: 9, symbol: "diamond" },
-      mode: "markers+text",
+      mode: compact ? "markers" : "markers+text",
       name: "Meaningful scenario",
-      showlegend: false,
+      showlegend: compact,
       text: ["Meaningful scenario"],
       textfont: { color: "#365f17", size: 11 },
       textposition: "bottom left",
@@ -242,7 +275,7 @@ async function renderPlot(response, plot) {
       borderpad: 3,
       font: { color: "#53646b", size: 11 },
       showarrow: false,
-      text: "Reported 95% CI context",
+      text: compact ? "Reported 95% CI<br>context" : "Reported 95% CI context",
       x: curve.axis_spacing === "log" ? Math.log10(ciCenter) : ciCenter,
       xref: "x",
       y: 0.99,
@@ -288,13 +321,13 @@ async function renderPlot(response, plot) {
         arrowcolor: "#5a3e75",
         arrowhead: 0,
         ax: 0,
-        ay: 28,
+        ay: compact ? -42 : 28,
         bgcolor: "rgba(255,255,255,0.82)",
         bordercolor: "#6b4c8a",
         borderpad: 3,
         font: { color: "#5a3e75", size: 11 },
         showarrow: true,
-        text: "Observed estimate (context only)",
+        text: compact ? "Observed estimate<br>(context only)" : "Observed estimate (context only)",
         x:
           curve.axis_spacing === "log"
             ? Math.log10(curve.markers.observed_estimate_display_optional)
@@ -306,54 +339,69 @@ async function renderPlot(response, plot) {
     );
   }
 
+  const layout = {
+    annotations,
+    autosize: renderWidth === null,
+    height: renderHeight,
+    hovermode: "x unified",
+    legend: {
+      bgcolor: "rgba(255,255,255,0.86)",
+      bordercolor: "#bcc8cc",
+      borderwidth: 1,
+      orientation: "h",
+      x: 0.02,
+      xanchor: "left",
+      y: compact ? 1.03 : 0.98,
+      yanchor: compact ? "bottom" : "top",
+    },
+    margin: compact
+      ? { b: 80, l: 58, r: 16, t: 176 }
+      : { b: 80, l: 72, r: 28, t: 84 },
+    paper_bgcolor: "#ffffff",
+    plot_bgcolor: "#ffffff",
+    shapes,
+    title: {
+      font: compact ? { size: 16 } : undefined,
+      text: compact
+        ? "Exact selected-claim probability<br>across assumed true effects"
+        : "Exact selected-claim probability across assumed true effects",
+      x: 0.5,
+      y: compact ? 0.98 : undefined,
+      yanchor: compact ? "top" : undefined,
+      yref: compact ? "container" : undefined,
+    },
+    xaxis: {
+      gridcolor: "#dce3e5",
+      range:
+        curve.axis_spacing === "log"
+          ? [Math.log10(curve.display_min), Math.log10(curve.display_max)]
+          : [curve.display_min, curve.display_max],
+      type: curve.axis_spacing === "log" ? "log" : "linear",
+      title: { text: `${response.meta.effect_label} (assumed true effect)` },
+    },
+    yaxis: {
+      gridcolor: "#dce3e5",
+      range: [0, 1],
+      tickformat: ".0%",
+      title: { text: "Exact selected-claim probability" },
+    },
+  };
+  if (renderWidth !== null) {
+    layout.width = renderWidth;
+  }
   await globalThis.Plotly.react(
     plot,
     traces,
-    {
-      annotations,
-      autosize: true,
-      height: 620,
-      hovermode: "x unified",
-      legend: {
-        bgcolor: "rgba(255,255,255,0.86)",
-        bordercolor: "#bcc8cc",
-        borderwidth: 1,
-        orientation: "h",
-        x: 0.02,
-        xanchor: "left",
-        y: 0.98,
-        yanchor: "top",
-      },
-      margin: { b: 80, l: 72, r: 28, t: 84 },
-      paper_bgcolor: "#ffffff",
-      plot_bgcolor: "#ffffff",
-      shapes,
-      title: {
-        text: "Exact selected-claim probability across assumed true effects",
-        x: 0.5,
-      },
-      xaxis: {
-        gridcolor: "#dce3e5",
-        range:
-          curve.axis_spacing === "log"
-            ? [Math.log10(curve.display_min), Math.log10(curve.display_max)]
-            : [curve.display_min, curve.display_max],
-        type: curve.axis_spacing === "log" ? "log" : "linear",
-        title: { text: `${response.meta.effect_label} (assumed true effect)` },
-      },
-      yaxis: {
-        gridcolor: "#dce3e5",
-        range: [0, 1],
-        tickformat: ".0%",
-        title: { text: "Exact selected-claim probability" },
-      },
-    },
+    layout,
     {
       displaylogo: false,
-      responsive: true,
+      displayModeBar: compact ? false : "hover",
+      responsive: renderMode === "live",
       scrollZoom: false,
     },
   );
+  plot.dataset.compact = String(compact);
+  plot.dataset.renderMode = renderMode;
 }
 
 export async function renderResult(response, elements) {

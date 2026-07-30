@@ -21,6 +21,42 @@ def _png_dimensions(path: Path) -> tuple[int, int]:
     return struct.unpack(">II", contents[16:24])
 
 
+def _rendered_rectangles(page: Page, selector: str) -> list[dict[str, float | str]]:
+    return page.locator(selector).evaluate_all(
+        """nodes => nodes.filter(node => {
+          const style = getComputedStyle(node);
+          const rect = node.getBoundingClientRect();
+          return style.display !== "none" && style.visibility !== "hidden" &&
+            rect.width > 0 && rect.height > 0;
+        }).map(node => {
+          const rect = node.getBoundingClientRect();
+          return {
+            text: (node.textContent || "").trim(),
+            left: rect.left,
+            right: rect.right,
+            top: rect.top,
+            bottom: rect.bottom,
+          };
+        })"""
+    )
+
+
+def _assert_nonoverlapping(rectangles: list[dict[str, float | str]]) -> None:
+    for index, left in enumerate(rectangles):
+        for right in rectangles[index + 1 :]:
+            horizontal = min(float(left["right"]), float(right["right"])) - max(
+                float(left["left"]),
+                float(right["left"]),
+            )
+            vertical = min(float(left["bottom"]), float(right["bottom"])) - max(
+                float(left["top"]),
+                float(right["top"]),
+            )
+            assert horizontal <= 1 or vertical <= 1, (
+                f"Rendered labels overlap: {left['text']!r} and {right['text']!r}"
+            )
+
+
 def test_worker_loads_and_calculates(page: Page, app_url: str) -> None:
     _ready(page, app_url)
 
@@ -48,7 +84,7 @@ def test_worker_loads_and_calculates(page: Page, app_url: str) -> None:
         "Observed estimate (context only)",
     ]:
         expect(page.locator("#plot .annotation-text").filter(has_text=label)).to_be_visible()
-    expect(page.locator("#runtime-versions")).to_contain_text("critical-effect-size 0.1.1")
+    expect(page.locator("#runtime-versions")).to_contain_text("critical-effect-size 0.1.2")
     expect(page.locator("#runtime-versions")).to_contain_text("wald-inference 0.4.1")
     expect(page.locator("#core-version")).to_have_text("Core: wald-inference 0.4.1")
 
@@ -256,3 +292,168 @@ def test_mobile_keyboard_and_privacy_smoke(page: Page, app_url: str) -> None:
     assert page.evaluate(
         "document.documentElement.scrollWidth <= document.documentElement.clientWidth"
     )
+
+
+def test_mobile_plot_labels_are_contained_and_nonoverlapping(
+    page: Page,
+    app_url: str,
+) -> None:
+    page.set_viewport_size({"width": 390, "height": 844})
+    _ready(page, app_url)
+    page.locator("#calculate").click()
+    expect(page.locator("#runtime-status")).to_have_text("Calculation complete.")
+
+    expect(page.locator("#plot .gtitle")).to_contain_text("Exact selected-claim probability")
+    for label in [
+        "Current precision",
+        "Exact current",
+        "Null",
+        "Meaningful scenario",
+        "Target 80%",
+        "Reported 95% CI",
+        "Observed estimate",
+    ]:
+        expect(page.locator("#plot").get_by_text(label, exact=False).first).to_be_visible()
+    expect(page.locator("#plot .textpoint")).to_have_count(0)
+
+    viewport_width = page.evaluate("document.documentElement.clientWidth")
+    labels = _rendered_rectangles(
+        page,
+        "#plot .gtitle, #plot .legendtext, #plot .annotation-text",
+    )
+    assert labels
+    for label in labels:
+        assert float(label["left"]) >= -0.5, f"Label is clipped left: {label['text']!r}"
+        assert float(label["right"]) <= viewport_width + 0.5, (
+            f"Label is clipped right: {label['text']!r}"
+        )
+    _assert_nonoverlapping(labels)
+
+    observed_label = next(
+        label for label in labels if str(label["text"]).startswith("Observed estimate")
+    )
+    x_axis_labels = _rendered_rectangles(
+        page,
+        "#plot .xtick text, #plot .xtitle",
+    )
+    _assert_nonoverlapping([observed_label, *x_axis_labels])
+
+
+def test_plot_uses_container_width_and_rerenders_across_compact_boundary(
+    page: Page,
+    app_url: str,
+) -> None:
+    page.set_viewport_size({"width": 850, "height": 900})
+    _ready(page, app_url)
+    page.locator("#calculate").click()
+    expect(page.locator("#runtime-status")).to_have_text("Calculation complete.")
+
+    plot = page.locator("#plot")
+    expect(plot).to_have_attribute("data-compact", "true")
+    assert plot.evaluate("(element) => element.getBoundingClientRect().width") <= 480
+    expect(plot.locator(".textpoint")).to_have_count(0)
+
+    page.evaluate(
+        """() => {
+          const original = globalThis.Plotly.react.bind(globalThis.Plotly);
+          globalThis.__responsiveReactCalls = [];
+          globalThis.Plotly.react = async (...args) => {
+            const title = args[2].title.text;
+            globalThis.__responsiveReactCalls.push(
+              title.includes("<br>") ? "compact" : "noncompact",
+            );
+            return original(...args);
+          };
+        }"""
+    )
+
+    page.set_viewport_size({"width": 870, "height": 900})
+    page.wait_for_timeout(250)
+    assert plot.evaluate("(element) => element.getBoundingClientRect().width") <= 480
+    assert page.evaluate("globalThis.__responsiveReactCalls") == []
+
+    page.set_viewport_size({"width": 1200, "height": 900})
+    expect(plot).to_have_attribute("data-compact", "false")
+    assert plot.evaluate("(element) => element.getBoundingClientRect().width") > 480
+    expect(plot.locator(".textpoint").filter(has_text="Exact current")).not_to_have_count(0)
+    assert page.evaluate("globalThis.__responsiveReactCalls") == ["noncompact"]
+
+    page.set_viewport_size({"width": 1250, "height": 900})
+    page.wait_for_timeout(250)
+    assert page.evaluate("globalThis.__responsiveReactCalls") == ["noncompact"]
+
+    page.set_viewport_size({"width": 850, "height": 900})
+    expect(plot).to_have_attribute("data-compact", "true")
+    expect(plot.locator(".textpoint")).to_have_count(0)
+    assert page.evaluate("globalThis.__responsiveReactCalls") == [
+        "noncompact",
+        "compact",
+    ]
+
+
+def test_mobile_origin_png_exports_use_noncompact_plot(
+    page: Page,
+    app_url: str,
+    tmp_path: Path,
+) -> None:
+    page.set_viewport_size({"width": 390, "height": 844})
+    _ready(page, app_url)
+    page.locator("#calculate").click()
+    expect(page.locator("#runtime-status")).to_have_text("Calculation complete.")
+    expect(page.locator("#plot")).to_have_attribute("data-compact", "true")
+
+    page.evaluate(
+        """() => {
+          const original = globalThis.Plotly.toImage.bind(globalThis.Plotly);
+          globalThis.__exportPlotSnapshots = [];
+          globalThis.Plotly.toImage = async (element, options) => {
+            globalThis.__exportPlotSnapshots.push({
+              annotations: element.layout.annotations.map((item) => item.text),
+              compact: element.dataset.compact,
+              isLivePlot: element.id === "plot",
+              layoutHeight: element.layout.height,
+              layoutWidth: element.layout.width,
+              modes: element.data.map((trace) => trace.mode || null),
+              options,
+              renderMode: element.dataset.renderMode,
+              title: element.layout.title.text,
+            });
+            return original(element, options);
+          };
+        }"""
+    )
+
+    for selector, dimensions in [
+        ("#export-figure", (1600, 1200)),
+        ("#export-dashboard", (1400, 1200)),
+    ]:
+        with page.expect_download(timeout=60_000) as download_info:
+            page.locator(selector).click()
+        download = download_info.value
+        path = tmp_path / download.suggested_filename
+        download.save_as(path)
+        assert _png_dimensions(path) == dimensions
+
+    snapshots = page.evaluate("globalThis.__exportPlotSnapshots")
+    assert len(snapshots) == 2
+    assert [
+        (
+            snapshot["options"]["width"],
+            snapshot["options"]["height"],
+            snapshot["layoutWidth"],
+            snapshot["layoutHeight"],
+        )
+        for snapshot in snapshots
+    ] == [(1600, 1200, 1600, 1200), (1200, 820, 1200, 820)]
+    for snapshot in snapshots:
+        assert snapshot["compact"] == "false"
+        assert snapshot["renderMode"] == "export"
+        assert snapshot["isLivePlot"] is False
+        assert snapshot["title"] == ("Exact selected-claim probability across assumed true effects")
+        assert snapshot["modes"].count("markers+text") >= 3
+        assert "Reported 95% CI context" in snapshot["annotations"]
+        assert "Observed estimate (context only)" in snapshot["annotations"]
+
+    expect(page.locator("#plot")).to_have_attribute("data-compact", "true")
+    expect(page.locator("#plot .textpoint")).to_have_count(0)
+    expect(page.locator("[data-export-plot]")).to_have_count(0)
