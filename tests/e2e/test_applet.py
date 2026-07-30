@@ -21,6 +21,42 @@ def _png_dimensions(path: Path) -> tuple[int, int]:
     return struct.unpack(">II", contents[16:24])
 
 
+def _rendered_rectangles(page: Page, selector: str) -> list[dict[str, float | str]]:
+    return page.locator(selector).evaluate_all(
+        """nodes => nodes.filter(node => {
+          const style = getComputedStyle(node);
+          const rect = node.getBoundingClientRect();
+          return style.display !== "none" && style.visibility !== "hidden" &&
+            rect.width > 0 && rect.height > 0;
+        }).map(node => {
+          const rect = node.getBoundingClientRect();
+          return {
+            text: (node.textContent || "").trim(),
+            left: rect.left,
+            right: rect.right,
+            top: rect.top,
+            bottom: rect.bottom,
+          };
+        })"""
+    )
+
+
+def _assert_nonoverlapping(rectangles: list[dict[str, float | str]]) -> None:
+    for index, left in enumerate(rectangles):
+        for right in rectangles[index + 1 :]:
+            horizontal = min(float(left["right"]), float(right["right"])) - max(
+                float(left["left"]),
+                float(right["left"]),
+            )
+            vertical = min(float(left["bottom"]), float(right["bottom"])) - max(
+                float(left["top"]),
+                float(right["top"]),
+            )
+            assert horizontal <= 1 or vertical <= 1, (
+                f"Rendered labels overlap: {left['text']!r} and {right['text']!r}"
+            )
+
+
 def test_worker_loads_and_calculates(page: Page, app_url: str) -> None:
     _ready(page, app_url)
 
@@ -48,7 +84,7 @@ def test_worker_loads_and_calculates(page: Page, app_url: str) -> None:
         "Observed estimate (context only)",
     ]:
         expect(page.locator("#plot .annotation-text").filter(has_text=label)).to_be_visible()
-    expect(page.locator("#runtime-versions")).to_contain_text("critical-effect-size 0.1.1")
+    expect(page.locator("#runtime-versions")).to_contain_text("critical-effect-size 0.1.2")
     expect(page.locator("#runtime-versions")).to_contain_text("wald-inference 0.4.1")
     expect(page.locator("#core-version")).to_have_text("Core: wald-inference 0.4.1")
 
@@ -256,3 +292,48 @@ def test_mobile_keyboard_and_privacy_smoke(page: Page, app_url: str) -> None:
     assert page.evaluate(
         "document.documentElement.scrollWidth <= document.documentElement.clientWidth"
     )
+
+
+def test_mobile_plot_labels_are_contained_and_nonoverlapping(
+    page: Page,
+    app_url: str,
+) -> None:
+    page.set_viewport_size({"width": 390, "height": 844})
+    _ready(page, app_url)
+    page.locator("#calculate").click()
+    expect(page.locator("#runtime-status")).to_have_text("Calculation complete.")
+
+    expect(page.locator("#plot .gtitle")).to_contain_text("Exact selected-claim probability")
+    for label in [
+        "Current precision",
+        "Exact current",
+        "Null",
+        "Meaningful scenario",
+        "Target 80%",
+        "Reported 95% CI",
+        "Observed estimate",
+    ]:
+        expect(page.locator("#plot").get_by_text(label, exact=False).first).to_be_visible()
+    expect(page.locator("#plot .textpoint")).to_have_count(0)
+
+    viewport_width = page.evaluate("document.documentElement.clientWidth")
+    labels = _rendered_rectangles(
+        page,
+        "#plot .gtitle, #plot .legendtext, #plot .annotation-text",
+    )
+    assert labels
+    for label in labels:
+        assert float(label["left"]) >= -0.5, f"Label is clipped left: {label['text']!r}"
+        assert float(label["right"]) <= viewport_width + 0.5, (
+            f"Label is clipped right: {label['text']!r}"
+        )
+    _assert_nonoverlapping(labels)
+
+    observed_label = next(
+        label for label in labels if str(label["text"]).startswith("Observed estimate")
+    )
+    x_axis_labels = _rendered_rectangles(
+        page,
+        "#plot .xtick text, #plot .xtitle",
+    )
+    _assert_nonoverlapping([observed_label, *x_axis_labels])

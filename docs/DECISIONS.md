@@ -62,3 +62,15 @@ sections.
 CSV exports exactly the natural/working true effect and current/scenario selected-claim
 probabilities. PNGs and the caption disclose conditioning, information scenario, CI context, and
 display-range omissions.
+
+## 2026-07-30 — Compact plots prioritize readable labels
+
+At viewports up to 480 px wide, the plot wraps its title and long contextual annotations, hides
+the mode bar, and moves critical-effect, null, and meaningful-scenario marker labels into a
+compact legend. The desktop plot retains direct marker labels. Both layouts render the same
+curves, markers, annotations, hover values, and exports; this is a presentation-only change and
+does not alter the app contract or released-Core calculations.
+
+The compact layout is guarded at 390 px with real Plotly text bounding boxes. Page-level
+`scrollWidth` alone is insufficient because an SVG title can be clipped without widening the
+document.

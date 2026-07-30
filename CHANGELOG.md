@@ -5,6 +5,14 @@ All notable changes use a release-oriented record here. This repository follows
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-07-30
+
+- Keep the exact selected-claim-probability title and contextual annotations readable at a 390 px
+  viewport by wrapping compact copy and moving plot-marker labels into a compact legend.
+- Add a real-Plotly browser regression that checks rendered title, legend, and annotation bounding
+  boxes for viewport containment and overlap. Numerical values, the focused response, exports, and
+  the checksum-bound `wald-inference` v0.4.1 authority are unchanged.
+
 ## [0.1.1] - 2026-07-30
 
 - Publish the related-tool-navigation Pages source as a checksum-addressed patch release so the
@@ -46,6 +54,7 @@ All notable changes use a release-oriented record here. This repository follows
 - This is a repeated-study fixed-SE Wald design aid, not observed evidence, an MCID validator,
   clinical decision support, or a study-specific sample-size calculator.
 
-[Unreleased]: https://github.com/reblocke/critical-effect-size/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/reblocke/critical-effect-size/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/reblocke/critical-effect-size/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/reblocke/critical-effect-size/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/reblocke/critical-effect-size/releases/tag/v0.1.0

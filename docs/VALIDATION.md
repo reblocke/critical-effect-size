@@ -59,7 +59,8 @@ The suite verifies:
 - CI/direct-SE control state, one-/two-sided output routing, stale-result clearing, sanitized
   errors, and recovery;
 - textual alternatives, labeled controls, linked error focus, visible focus, keyboard flow, and
-  responsive layout;
+  responsive layout, including 390 px rendered Plotly title, legend, and annotation containment
+  and non-overlap;
 - no persistence, telemetry, cookie, input-bearing URL, or input-bearing network request;
 - explicit four-column CSV, figure PNG, dashboard PNG, and caption exports;
 - Chromium full E2E and WebKit worker/calculation smoke.
