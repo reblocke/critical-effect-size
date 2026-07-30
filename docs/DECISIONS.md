@@ -21,9 +21,11 @@ The dependency is pinned to the release wheel URL and SHA-256 in `pyproject.toml
 
 ## 2026-07-30 — Exact critical effect is primary
 
-The primary quantity is the smallest representable directed effect whose exact selected-claim
-probability meets the requested target under a fixed-SE one-parameter Wald model. Two-sided
-selection reports paired directions; one-sided selection reports only its selected direction.
+The primary quantity is the closest-to-null representable effect in each selected direction whose
+exact selected-claim probability meets the requested target under a fixed-SE one-parameter Wald
+model, equivalently the smallest absolute working-scale distance from the null in that direction.
+Two-sided selection reports paired directions; one-sided selection reports only its selected
+direction.
 
 The preserved z-sum calculation appears only at its fixed historical defaults and is labeled
 **Legacy closed-form benchmark**, with an explicit statement that it is not the exact two-tailed

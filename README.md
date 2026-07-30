@@ -10,8 +10,9 @@ calculations.
 ## Question answered
 
 Given a working-scale standard error, selected-claim rule, alpha, and target probability, what is
-the smallest true effect in the selected direction whose exact repeated-study selected-claim
-probability meets the target?
+the closest-to-null true effect in each selected direction whose exact repeated-study
+selected-claim probability meets the target? Equivalently, what is the smallest absolute
+working-scale distance from the null that meets the target in each selected direction?
 
 For standardized true effect
 

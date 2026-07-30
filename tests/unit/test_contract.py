@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 
 import pytest
 
@@ -75,6 +76,16 @@ def test_contract_returns_strict_json() -> None:
     assert "NaN" not in response_json
     assert "Infinity" not in response_json
     response = json.loads(response_json)
+    assert list(response) == [
+        "meta",
+        "precision",
+        "rule",
+        "critical_effect",
+        "legacy_benchmark_optional",
+        "probability_curve",
+        "reference_effects",
+        "warnings",
+    ]
     assert response["meta"]["core_version"] == "0.3.0"
 
 
@@ -137,6 +148,14 @@ def test_semantic_validation_fails_safely(
 
     with pytest.raises(ValidationError, match=message):
         calculate(request)
+
+
+def test_calculate_revalidates_precision_mode_for_direct_python_callers() -> None:
+    request = CriticalEffectRequest.from_mapping(_payload())
+    invalid_request = replace(request, precision_mode="bogus")  # type: ignore[arg-type]
+
+    with pytest.raises(ValidationError, match="Precision mode must"):
+        calculate(invalid_request)
 
 
 @pytest.mark.parametrize(

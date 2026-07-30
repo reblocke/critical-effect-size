@@ -73,6 +73,8 @@ def _solution_directions(selection_rule: str) -> tuple[str, ...]:
 
 
 def _validate_request(request: CriticalEffectRequest) -> None:
+    if request.precision_mode not in {"ci_95", "direct_se"}:
+        raise ValidationError("Precision mode must be 'ci_95' or 'direct_se'.")
     if request.selection_rule not in SUPPORTED_RULES:
         valid = ", ".join(SUPPORTED_RULES)
         raise ValidationError(f"Unsupported selected-claim rule. Expected one of: {valid}.")
@@ -367,9 +369,10 @@ def calculate(request: CriticalEffectRequest) -> CriticalEffectResponse:
     )
     critical_effect = {
         "definition": (
-            "Smallest representable effect in each reported direction whose exact "
+            "Closest-to-null representable effect in each reported direction whose exact "
             "selected-claim probability is at least the requested target under the fixed-SE "
-            "one-parameter Wald model."
+            "one-parameter Wald model; equivalently, the smallest absolute working-scale "
+            "distance from the null in that direction."
         ),
         "target_probability": request.target_probability,
         "current": {
@@ -716,5 +719,4 @@ def calculate_json(request_json: str) -> str:
         allow_nan=False,
         ensure_ascii=False,
         separators=(",", ":"),
-        sort_keys=True,
     )

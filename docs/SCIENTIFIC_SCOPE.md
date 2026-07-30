@@ -3,8 +3,9 @@
 ## Question
 
 Given a one-parameter Wald standard error, selected-claim rule, alpha, and target probability, what
-is the smallest true effect in the selected direction whose exact selected-claim probability is at
-least the target?
+is the closest-to-null true effect in each selected direction whose exact selected-claim
+probability is at least the target? Equivalently, what is the smallest absolute working-scale
+distance from the null meeting the target in each selected direction?
 
 With
 
@@ -19,9 +20,10 @@ and a future `Z ~ Normal(delta, 1)`:
 - one-sided positive selection uses `P(Z > z_(1-alpha))`;
 - one-sided negative selection uses `P(Z < -z_(1-alpha))`.
 
-The exact critical effect is the smallest representable effect in the relevant direction meeting
-the probability target under that model. For the symmetric two-sided rule, the app reports both
-directions.
+The exact critical effect is the closest-to-null representable effect in each relevant direction
+meeting the probability target under that model. Equivalently, it has the smallest absolute
+working-scale distance from the null in that direction. For the symmetric two-sided rule, the app
+reports both directions.
 
 ## Intended users and setting
 

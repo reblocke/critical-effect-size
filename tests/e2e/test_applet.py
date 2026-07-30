@@ -218,10 +218,28 @@ def test_mobile_keyboard_and_privacy_smoke(page: Page, app_url: str) -> None:
     initial_url = page.url
     page.locator("#meaningful-effect").fill("1.234567891")
     page.locator("#effect-type").focus()
-    page.keyboard.press("Tab")
-    expect(page.locator("#precision-mode")).to_be_focused()
-    page.locator("#calculate").click()
+    for selector in [
+        "#precision-mode",
+        "#ci-lower",
+        "#ci-upper",
+        "#observed-estimate",
+        "#null-value",
+        "#alpha",
+        "#target-probability",
+        "#selection-rule",
+        "#meaningful-effect",
+        "#information-multiplier",
+    ]:
+        page.keyboard.press("Tab")
+        expect(page.locator(selector)).to_be_focused()
+    page.keyboard.press("Enter")
     expect(page.locator("#runtime-status")).to_have_text("Calculation complete.")
+    expect(page.locator("#result-summary")).to_contain_text("exact 80%")
+
+    page.locator("#target-probability").fill("0.90")
+    page.keyboard.press("Enter")
+    expect(page.locator("#runtime-status")).to_have_text("Calculation complete.")
+    expect(page.locator("#result-summary")).to_contain_text("exact 90%")
 
     assert page.url == initial_url
     assert page.evaluate("localStorage.length") == 0
