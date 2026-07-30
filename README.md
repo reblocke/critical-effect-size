@@ -21,7 +21,7 @@ delta = (theta_true - theta_null) / SE
 ```
 
 the app uses the exact normal/Wald tail probability and inverse implemented by released
-[`wald-inference` v0.3.0](https://github.com/reblocke/wald-inference-core/releases/tag/v0.3.0).
+[`wald-inference` v0.4.1](https://github.com/reblocke/wald-inference-core/releases/tag/v0.4.1).
 For a two-sided rule it reports paired effects around the null. For a one-sided rule it reports
 only the selected direction.
 
@@ -62,7 +62,7 @@ They are multiplicatively, not arithmetically, symmetric around the null ratio.
 ## Exact result versus legacy benchmark
 
 The primary result solves the exact selected-claim probability equation through released Core
-v0.3.0. When the rule is two-sided with alpha 0.05 and target 0.80, the app also displays the
+v0.4.1. When the rule is two-sided with alpha 0.05 and target 0.80, the app also displays the
 preserved historical benchmark
 
 ```text
@@ -79,7 +79,7 @@ browser form
   -> dedicated Web Worker
   -> hash-verified generated Python bundle
   -> critical_effect_size.contract.calculate_json
-  -> wald-inference 0.3.0 exact APIs
+  -> wald-inference 0.4.1 exact APIs
   -> strict focused JSON
   -> textual summaries + Plotly + explicit exports
 ```
@@ -87,9 +87,9 @@ browser form
 - `src/critical_effect_size/` owns validation, orchestration, display payloads, and exports.
 - `wald-inference` owns every Wald probability, inverse, reconstruction, transformation, legacy
   benchmark, and information-scaling primitive.
-- `browser-stage.toml`, `pyproject.toml`, and `uv.lock` bind the Core wheel to its v0.3.0 release URL
+- `browser-stage.toml`, `pyproject.toml`, and `uv.lock` bind the Core wheel to its v0.4.1 release URL
   and SHA-256
-  `630fdece13c2940f751d1f5d3a4d6477182dbb099131a9907ceef7067348f939`.
+  `d7272023f65088729d3ff997cab7cac57b84f22ac6108244ec2170434557d99b`.
 - `scripts/stage_browser_packages.py` stages the installed app and Core from the locked
   environment. Generated `web/assets/py/` is ignored and verified byte-for-byte before import.
 
@@ -116,7 +116,7 @@ See [scientific scope](docs/SCIENTIFIC_SCOPE.md), [validation](docs/VALIDATION.m
 [Repository](https://github.com/reblocke/critical-effect-size)
 
 Numerical authority:
-[wald-inference Core v0.3.0](https://github.com/reblocke/wald-inference-core/releases/tag/v0.3.0).
+[wald-inference Core v0.4.1](https://github.com/reblocke/wald-inference-core/releases/tag/v0.4.1).
 [Privacy](docs/PRIVACY.md) documents the client-side, no-storage boundary.
 
 ## Local development

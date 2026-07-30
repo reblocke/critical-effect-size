@@ -2,21 +2,23 @@
 
 ## Numerical authority
 
-The app pins released `wald-inference` v0.3.0 from:
+The app pins released `wald-inference` v0.4.1 from:
 
 ```text
-https://github.com/reblocke/wald-inference-core/releases/download/v0.3.0/
-wald_inference-0.3.0-py3-none-any.whl
+https://github.com/reblocke/wald-inference-core/releases/download/v0.4.1/
+wald_inference-0.4.1-py3-none-any.whl
 ```
 
 The wheel SHA-256 is
-`630fdece13c2940f751d1f5d3a4d6477182dbb099131a9907ceef7067348f939`; annotated tag
-`v0.3.0` peels to `9618abf3a632838794e9e40752af7823e77115cb`. Core release run
-`30528203564` and main CI run `30528182396` were green, and the released Core retained zero
+`d7272023f65088729d3ff997cab7cac57b84f22ac6108244ec2170434557d99b`; annotated tag
+`v0.4.1` peels to `f4613177b6dc81d194aa70762152de2bfa86663b`. Core release run
+`30545293704` and main CI run `30545147370` were green, and the released Core retained zero
 difference across the frozen 23,095-value pre-split parity contract.
 
 The app keeps orchestration and presentation local but delegates every scientific primitive to
-that released Core.
+that released Core. The v0.4.1 repair release corrects active-threshold inverse-precision
+bracketing, extreme pairwise support comparison, and strict ratio back-transform underflow; this
+app adds no local formula.
 
 ## Independent scientific targets
 

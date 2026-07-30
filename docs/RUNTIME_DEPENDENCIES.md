@@ -12,15 +12,15 @@ the app does not silently fall back to a different runtime version.
 
 ## Scientific Core
 
-`wald-inference` 0.3.0 is required for all numerical behavior.
+`wald-inference` 0.4.1 is required for all numerical behavior.
 
 - source:
-  `https://github.com/reblocke/wald-inference-core/releases/download/v0.3.0/wald_inference-0.3.0-py3-none-any.whl`
+  `https://github.com/reblocke/wald-inference-core/releases/download/v0.4.1/wald_inference-0.4.1-py3-none-any.whl`
 - SHA-256:
-  `630fdece13c2940f751d1f5d3a4d6477182dbb099131a9907ceef7067348f939`
+  `d7272023f65088729d3ff997cab7cac57b84f22ac6108244ec2170434557d99b`
 - license: MIT
-- release/tag: `v0.3.0`, peeled commit
-  `9618abf3a632838794e9e40752af7823e77115cb`
+- release/tag: `v0.4.1`, peeled commit
+  `f4613177b6dc81d194aa70762152de2bfa86663b`
 
 The direct URL and checksum are bound in package metadata, `uv.lock`, and
 `browser-stage.toml`. Staging verifies installed distribution provenance and every staged Core
