@@ -84,7 +84,7 @@ def test_worker_loads_and_calculates(page: Page, app_url: str) -> None:
         "Observed estimate (context only)",
     ]:
         expect(page.locator("#plot .annotation-text").filter(has_text=label)).to_be_visible()
-    expect(page.locator("#runtime-versions")).to_contain_text("critical-effect-size 0.1.2")
+    expect(page.locator("#runtime-versions")).to_contain_text("critical-effect-size 0.1.3")
     expect(page.locator("#runtime-versions")).to_contain_text("wald-inference 0.4.1")
     expect(page.locator("#core-version")).to_have_text("Core: wald-inference 0.4.1")
 

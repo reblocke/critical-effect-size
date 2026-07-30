@@ -5,6 +5,15 @@ All notable changes use a release-oriented record here. This repository follows
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-07-30
+
+- State the declared app version, canonical release record, experimental release maturity,
+  versioned publication-state source, and exact tagged-release or commit citation guidance in the
+  README, guarded by a repository policy regression.
+- Synchronize package, lock, browser staging, runtime displays and tests, maintenance, and
+  machine-readable citation metadata at 0.1.3. Scientific calculations, the focused contract, UI
+  behavior, and the checksum-bound `wald-inference` v0.4.1 authority are unchanged.
+
 ## [0.1.2] - 2026-07-30
 
 - Keep the exact selected-claim-probability title and contextual annotations readable whenever the
@@ -57,7 +66,8 @@ All notable changes use a release-oriented record here. This repository follows
 - This is a repeated-study fixed-SE Wald design aid, not observed evidence, an MCID validator,
   clinical decision support, or a study-specific sample-size calculator.
 
-[Unreleased]: https://github.com/reblocke/critical-effect-size/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/reblocke/critical-effect-size/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/reblocke/critical-effect-size/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/reblocke/critical-effect-size/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/reblocke/critical-effect-size/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/reblocke/critical-effect-size/releases/tag/v0.1.0

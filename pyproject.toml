@@ -1,6 +1,6 @@
 [project]
 name = "critical-effect-size"
-version = "0.1.2"
+version = "0.1.3"
 description = "Exact one-parameter Wald detectability and critical-effect calculations"
 readme = "README.md"
 requires-python = ">=3.12"

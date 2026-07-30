@@ -2,7 +2,7 @@
 
 ## Status and ownership
 
-Status: active experimental scientific app, version 0.1.2.
+Status: active experimental scientific app, version 0.1.3.
 
 Maintainer: Brian Locke (`@reblocke`). Use repository issues and pull requests for public
 coordination. Scientific behavior changes require review of Core authority, app contract, tests,
