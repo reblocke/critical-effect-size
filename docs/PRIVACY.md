@@ -30,9 +30,9 @@ CSV and PNG files are created locally after an explicit button press. The browse
 download behavior determines where those files are saved. The app does not upload or retain
 them.
 
-## Author actions
+## Review gate
 
-AUTHOR ACTION REQUIRED: review every new input, example, fixture, URL, log, export, dependency,
-and deployment change. Use synthetic fixtures. If any storage, server, analytics, sharing, or
-upload feature is proposed, stop and document data path, retention, access, and compliance
-assumptions before implementation.
+Every new input, example, fixture, URL, log, export, dependency, and deployment change must be
+reviewed against this boundary. Fixtures are synthetic and contain no clinical records. If any
+storage, server, analytics, sharing, or upload feature is proposed, stop and document the data
+path, retention, access, consent, and compliance assumptions before implementation.

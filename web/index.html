@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Reusable client-side Python scaffold for a focused scientific applet"
+      content="Exact one-parameter Wald detectability and critical-effect calculations"
     />
-    <title>Scientific Applet Template</title>
+    <title>Wald Critical Effect Size</title>
     <link rel="stylesheet" href="./styles.css" />
     <script
       src="https://cdn.plot.ly/plotly-3.1.0.min.js"
@@ -20,10 +20,11 @@
     <a class="skip-link" href="#main-content">Skip to applet</a>
     <header class="site-header">
       <div>
-        <p class="eyebrow">Replace-me demonstration</p>
-        <h1>Scientific Applet Template</h1>
+        <p class="eyebrow">Exact repeated-study detectability</p>
+        <h1>Wald Critical Effect Size</h1>
         <p>
-          Reusable client-side Python scaffold for a focused scientific applet
+          Find the smallest directed true effect meeting a chosen exact
+          selected-claim probability under a fixed-SE one-parameter Wald model.
         </p>
       </div>
       <section class="runtime-card" aria-labelledby="runtime-heading">
@@ -40,89 +41,312 @@
 
     <main id="main-content" class="app-shell">
       <aside class="controls" aria-labelledby="controls-heading">
-        <h2 id="controls-heading">Demonstration inputs</h2>
+        <h2 id="controls-heading">Inputs</h2>
         <p class="scope-note">
-          This arithmetic example exists only to prove the template path. Replace it before
-          describing a scientific question.
+          Exact critical effect is a forward design quantity. It is not a confidence bound,
+          observed evidence, clinical MCID, or study-specific sample-size calculation.
         </p>
         <div id="error-summary" class="error-summary" role="alert" tabindex="-1" hidden>
           <h3>Check the inputs</h3>
           <ul></ul>
         </div>
         <form id="applet-form" novalidate>
-          <div class="field">
-            <label for="first-value">First value</label>
-            <input
-              id="first-value"
-              name="first_value"
-              type="text"
-              inputmode="decimal"
-              autocomplete="off"
-              value="2"
-              required
-            />
-          </div>
-          <div class="field">
-            <label for="second-value">Second value</label>
-            <input
-              id="second-value"
-              name="second_value"
-              type="text"
-              inputmode="decimal"
-              autocomplete="off"
-              value="3"
-              required
-            />
-          </div>
+          <fieldset>
+            <legend>Effect and precision</legend>
+            <div class="field">
+              <label for="effect-type">Effect measure</label>
+              <select id="effect-type" name="effect_type">
+                <option value="odds_ratio">Odds ratio</option>
+                <option value="risk_ratio">Risk ratio</option>
+                <option value="hazard_ratio">Hazard ratio</option>
+                <option value="incidence_rate_ratio">Incidence rate ratio</option>
+                <option value="ratio_of_means">Ratio of means</option>
+                <option value="mean_difference">Mean difference</option>
+                <option value="risk_difference">Risk difference</option>
+                <option value="rate_difference">Rate difference</option>
+                <option value="regression_coefficient">Regression coefficient</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="precision-mode">Precision input</label>
+              <select id="precision-mode" name="precision_mode">
+                <option value="ci_95">Reported 95% CI</option>
+                <option value="direct_se">Direct working-scale SE</option>
+              </select>
+            </div>
+            <div id="ci-fields">
+              <div class="field-row">
+                <div class="field">
+                  <label for="ci-lower">95% CI lower</label>
+                  <input
+                    id="ci-lower"
+                    name="ci_lower"
+                    type="text"
+                    inputmode="decimal"
+                    autocomplete="off"
+                    value="1.1"
+                  />
+                </div>
+                <div class="field">
+                  <label for="ci-upper">95% CI upper</label>
+                  <input
+                    id="ci-upper"
+                    name="ci_upper"
+                    type="text"
+                    inputmode="decimal"
+                    autocomplete="off"
+                    value="2.05"
+                  />
+                </div>
+              </div>
+              <p class="field-note">
+                The CI reconstructs current SE under a nominal 95% Wald approximation.
+              </p>
+            </div>
+            <div id="se-fields" hidden>
+              <div class="field">
+                <label for="standard-error">Standard error on working scale</label>
+                <input
+                  id="standard-error"
+                  name="standard_error"
+                  type="text"
+                  inputmode="decimal"
+                  autocomplete="off"
+                  value="0.16"
+                />
+              </div>
+              <p id="se-scale-note" class="field-note">
+                Ratio-measure SE must be entered on the log scale.
+              </p>
+            </div>
+            <div class="field">
+              <label for="observed-estimate">Observed estimate (optional display marker)</label>
+              <input
+                id="observed-estimate"
+                name="observed_estimate"
+                type="text"
+                inputmode="decimal"
+                autocomplete="off"
+                value="1.5"
+              />
+              <p class="field-note">
+                In CI mode, a supplied estimate must agree with the CI midpoint within the
+                released Core tolerance. It is never used as “observed power.”
+              </p>
+            </div>
+            <div class="field">
+              <label for="null-value">Null value</label>
+              <input
+                id="null-value"
+                name="null_value"
+                type="text"
+                inputmode="decimal"
+                autocomplete="off"
+                value="1"
+                required
+              />
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Detectability rule</legend>
+            <div class="field-row">
+              <div class="field">
+                <label for="alpha">Alpha</label>
+                <input
+                  id="alpha"
+                  name="alpha"
+                  type="text"
+                  inputmode="decimal"
+                  autocomplete="off"
+                  value="0.05"
+                  required
+                />
+              </div>
+              <div class="field">
+                <label for="target-probability">Target probability</label>
+                <input
+                  id="target-probability"
+                  name="target_probability"
+                  type="text"
+                  inputmode="decimal"
+                  autocomplete="off"
+                  value="0.80"
+                  required
+                />
+              </div>
+            </div>
+            <div class="field">
+              <label for="selection-rule">Selected-claim rule</label>
+              <select id="selection-rule" name="selection_rule">
+                <option value="two_sided_p_lt_alpha">Two-sided</option>
+                <option value="one_sided_positive_p_lt_alpha">
+                  One-sided positive
+                </option>
+                <option value="one_sided_negative_p_lt_alpha">
+                  One-sided negative
+                </option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="meaningful-effect">
+                User-defined meaningful effect (optional scenario)
+              </label>
+              <input
+                id="meaningful-effect"
+                name="meaningful_effect"
+                type="text"
+                inputmode="decimal"
+                autocomplete="off"
+                value="1.5"
+              />
+              <p class="field-note">
+                The app evaluates this scenario but does not validate its scientific or clinical
+                importance.
+              </p>
+            </div>
+            <div class="field">
+              <label for="information-multiplier">Information multiplier</label>
+              <input
+                id="information-multiplier"
+                name="information_multiplier"
+                type="text"
+                inputmode="decimal"
+                autocomplete="off"
+                value="1"
+                required
+              />
+              <p class="field-note">
+                Scenario SE = current SE / √multiplier. This is not automatically a sample-size
+                multiplier.
+              </p>
+            </div>
+          </fieldset>
+
           <details>
-            <summary>Advanced controls pattern</summary>
+            <summary>Optional display range</summary>
             <p>
-              Put infrequently changed, scientifically justified controls here. This example has
-              no advanced parameter.
+              Leave both blank for a range that includes the scientific markers. Values are on the
+              natural display scale.
             </p>
+            <div class="field-row">
+              <div class="field">
+                <label for="display-min">Display minimum</label>
+                <input
+                  id="display-min"
+                  name="display_min"
+                  type="text"
+                  inputmode="decimal"
+                  autocomplete="off"
+                  value=""
+                />
+              </div>
+              <div class="field">
+                <label for="display-max">Display maximum</label>
+                <input
+                  id="display-max"
+                  name="display_max"
+                  type="text"
+                  inputmode="decimal"
+                  autocomplete="off"
+                  value=""
+                />
+              </div>
+            </div>
           </details>
+
           <div class="actions">
-            <button id="calculate" type="submit" disabled>Run demonstration</button>
+            <button id="calculate" type="submit" disabled>
+              Calculate exact critical effect
+            </button>
             <button type="reset" class="secondary">Reset</button>
           </div>
         </form>
       </aside>
 
       <section class="results" aria-labelledby="results-heading">
-        <h2 id="results-heading">Result</h2>
+        <h2 id="results-heading">Results</h2>
         <div id="result" hidden>
+          <p id="conditioning-result" class="conditioning-banner"></p>
           <p id="result-summary" class="result-summary" aria-live="polite"></p>
+
+          <div class="summary-grid">
+            <section aria-labelledby="precision-heading">
+              <h3 id="precision-heading">Precision</h3>
+              <p id="precision-summary"></p>
+            </section>
+            <section aria-labelledby="rule-heading">
+              <h3 id="rule-heading">Rule</h3>
+              <p id="rule-summary"></p>
+            </section>
+            <section aria-labelledby="current-critical-heading">
+              <h3 id="current-critical-heading">Exact critical effect: current</h3>
+              <p id="current-critical-summary"></p>
+            </section>
+            <section aria-labelledby="scenario-critical-heading">
+              <h3 id="scenario-critical-heading">Exact critical effect: scenario</h3>
+              <p id="scenario-critical-summary"></p>
+            </section>
+          </div>
+
+          <section id="legacy-section" class="notice-box" hidden>
+            <h3>Legacy closed-form benchmark</h3>
+            <p id="legacy-summary"></p>
+          </section>
+
+          <section id="meaningful-section" class="notice-box" hidden>
+            <h3>Power at the user-defined meaningful effect</h3>
+            <p id="meaningful-summary"></p>
+          </section>
+
           <div
             id="plot"
             class="plot"
             role="img"
-            aria-label="Demonstration bar chart; all values are also listed in the table."
+            aria-label="Exact selected-claim probability by assumed true effect; numeric results are also provided in text and tables."
           ></div>
+
           <div class="table-wrap">
-            <table id="result-table">
-              <caption>Demonstration values</caption>
+            <table id="reference-table">
+              <caption>
+                Exact effects for 50%, 80%, and 90% selected-claim probability
+              </caption>
               <thead>
                 <tr>
-                  <th scope="col">Label</th>
-                  <th scope="col">Value</th>
+                  <th scope="col">Precision</th>
+                  <th scope="col">Target</th>
+                  <th scope="col">Direction</th>
+                  <th scope="col">Critical effect</th>
+                  <th scope="col">Standardized delta</th>
+                  <th scope="col">Achieved probability</th>
                 </tr>
               </thead>
               <tbody></tbody>
             </table>
           </div>
+
+          <section class="warnings-box" aria-labelledby="warnings-heading">
+            <h3 id="warnings-heading">Limitations and interpretation</h3>
+            <ul id="warnings-list"></ul>
+          </section>
+          <p id="figure-caption" class="figure-caption"></p>
+
           <div class="export-actions" aria-label="Export result">
-            <button id="export-csv" data-export type="button">Download CSV</button>
+            <button id="export-csv" data-export type="button">Download curve CSV</button>
             <button id="export-dashboard" data-export type="button">
               Download dashboard PNG
             </button>
             <button id="export-figure" data-export type="button">
               Download figure PNG
             </button>
-            <button id="copy-caption" type="button">Copy caption</button>
+            <button id="copy-caption" data-copy type="button">Copy caption</button>
           </div>
         </div>
         <div class="empty-state">
-          <p>Run the demonstration to populate the textual result, plot, table, and exports.</p>
+          <p>
+            Calculate to populate the exact critical values, selected-claim probability curve,
+            reference table, and exports.
+          </p>
         </div>
       </section>
     </main>
@@ -130,23 +354,39 @@
     <footer>
       <section>
         <h2>Scope</h2>
-        <p>Engineering scaffold only. No scientific formula or inference claim is included.</p>
+        <p>
+          Educational and research-facing one-parameter Wald design aid. Not a validated clinical
+          or regulatory device and not a study-specific sample-size calculator.
+        </p>
       </section>
       <section>
         <h2>Privacy</h2>
-        <p>Inputs remain in page and worker memory; there is no backend, telemetry, or storage.</p>
+        <p>
+          Inputs remain in page and worker memory. There is no backend, telemetry, persistence,
+          cookie, or input-bearing URL.
+        </p>
       </section>
       <section>
         <h2>Sources and maintenance</h2>
         <p>
-          <a href="https://github.com/reblocke/scientific-applet-template/blob/main/docs/SCIENTIFIC_SCOPE.md">Scientific scope</a> ·
-          <a href="https://github.com/reblocke/scientific-applet-template/blob/main/docs/PRIVACY.md">Privacy details</a> ·
-          <a href="https://github.com/reblocke/scientific-applet-template">Repository</a> ·
-          <a href="https://github.com/reblocke">Related tools</a>
+          <a
+            href="https://journals.sagepub.com/doi/10.1177/25152459251335298"
+            target="_blank"
+            rel="noopener noreferrer"
+          >Perugini et al., AMPS 2025</a>
+          for design rationale; transparent formulas and released Core behavior govern the
+          calculation.
         </p>
         <p>
-          <span id="core-version">Core: none configured</span> ·
-          <span id="footer-status">template 0.1.0</span>
+          <a href="https://github.com/reblocke/critical-effect-size/blob/main/docs/SCIENTIFIC_SCOPE.md">Scientific scope</a>
+          ·
+          <a href="https://github.com/reblocke/critical-effect-size/blob/main/docs/PRIVACY.md">Privacy</a>
+          ·
+          <a href="https://github.com/reblocke/critical-effect-size">Repository</a>
+        </p>
+        <p>
+          <span id="core-version">Core version pending</span> ·
+          <span id="footer-status">critical-effect-size 0.1.0</span>
         </p>
       </section>
     </footer>

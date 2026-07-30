@@ -1,35 +1,113 @@
-# Scientific Applet Template
+# Wald Critical Effect Size
 
-[![CI](https://github.com/reblocke/scientific-applet-template/actions/workflows/ci.yml/badge.svg)](https://github.com/reblocke/scientific-applet-template/actions/workflows/ci.yml)
+[![CI](https://github.com/reblocke/critical-effect-size/actions/workflows/ci.yml/badge.svg)](https://github.com/reblocke/critical-effect-size/actions/workflows/ci.yml)
 
-Reusable client-side Python scaffold for a focused scientific applet
+A static, client-side app for exact one-parameter Wald detectability and critical-effect
+calculations.
 
-This is an engineering template, not a statistical package or validated scientific tool. Its
-two-number arithmetic demonstration exists only to prove the complete Python-to-worker-to-browser
-path. Replace that demonstration and complete the author-action prompts before making a scientific
-claim.
+[Open the app](https://reblocke.github.io/critical-effect-size/)
 
-## Create an app
+## Question answered
 
-Use GitHub’s “Use this template” control, clone the new repository, then run the guarded
-initializer once:
+Given a working-scale standard error, selected-claim rule, alpha, and target probability, what is
+the smallest true effect in the selected direction whose exact repeated-study selected-claim
+probability meets the target?
 
-```bash
-uv sync --locked
-uv run python scripts/initialize_template.py \
-  --repository-name compatibility-curve \
-  --distribution-name compatibility-curve \
-  --import-name compatibility_curve \
-  --app-title "Wald Compatibility Curve" \
-  --description "A focused client-side scientific applet"
+For standardized true effect
+
+```text
+delta = (theta_true - theta_null) / SE
 ```
 
-The command validates names, updates package paths and repository metadata, removes
-template-maintainer-only checks, writes an ignored replacement report, and fails if any required
-template identity remains. It never enters or edits `.git`. A second run is refused unless
-`--force` is explicit.
+the app uses the exact normal/Wald tail probability and inverse implemented by released
+[`wald-inference` v0.3.0](https://github.com/reblocke/wald-inference-core/releases/tag/v0.3.0).
+For a two-sided rule it reports paired effects around the null. For a one-sided rule it reports
+only the selected direction.
 
-Review the diff, complete every `AUTHOR ACTION REQUIRED` prompt, then verify:
+This quantity is a forward operating characteristic under an assumed true effect and fixed SE. It
+is not a confidence bound, an observed estimate, “observed power,” a posterior probability, a
+clinically validated minimum important difference, or a study-specific sample-size result.
+
+## Inputs
+
+Precision can be supplied as either:
+
+- a reported nominal 95% CI, with an optional estimate validated against the CI midpoint; or
+- a direct standard error on the Wald working scale.
+
+Ratio measures use the log working scale, so direct SE must be a log-scale SE. Additive measures
+use the identity scale. Other controls are the effect measure, null, alpha, two-sided or directional
+one-sided rule, target selected-claim probability, optional user-defined meaningful-effect
+scenario, optional information multiplier, and optional natural-scale display range.
+
+The information scenario uses Core's
+`scenario SE = current SE / sqrt(information multiplier)`. It is relative information, not
+automatically a sample-size multiplier.
+
+## Outputs
+
+- exact current and information-scenario critical effects;
+- signed standardized critical delta and achieved probability;
+- exact selected-claim probability curves;
+- effects meeting 50%, 80%, and 90% probability;
+- probability at a user-defined meaningful-effect scenario;
+- observed estimate, null, meaningful-effect, and reported-CI context markers when supplied;
+- an optional legacy closed-form benchmark at the historical fixed defaults;
+- an explicit four-column curve CSV, figure PNG, dashboard PNG, and copyable caption.
+
+Ratio critical effects are calculated as equal log distances and displayed on the natural scale.
+They are multiplicatively, not arithmetically, symmetric around the null ratio.
+
+## Exact result versus legacy benchmark
+
+The primary result solves the exact selected-claim probability equation through released Core
+v0.3.0. When the rule is two-sided with alpha 0.05 and target 0.80, the app also displays the
+preserved historical benchmark
+
+```text
+(z_(1 - alpha/2) + z_power) * SE
+```
+
+as **Legacy closed-form benchmark**. It is intentionally not labeled as the exact solution of the
+two-tailed probability equation.
+
+## Architecture and dependency integrity
+
+```text
+browser form
+  -> dedicated Web Worker
+  -> hash-verified generated Python bundle
+  -> critical_effect_size.contract.calculate_json
+  -> wald-inference 0.3.0 exact APIs
+  -> strict focused JSON
+  -> textual summaries + Plotly + explicit exports
+```
+
+- `src/critical_effect_size/` owns validation, orchestration, display payloads, and exports.
+- `wald-inference` owns every Wald probability, inverse, reconstruction, transformation, legacy
+  benchmark, and information-scaling primitive.
+- `browser-stage.toml`, `pyproject.toml`, and `uv.lock` bind the Core wheel to its v0.3.0 release URL
+  and SHA-256
+  `630fdece13c2940f751d1f5d3a4d6477182dbb099131a9907ceef7067348f939`.
+- `scripts/stage_browser_packages.py` stages the installed app and Core from the locked
+  environment. Generated `web/assets/py/` is ignored and verified byte-for-byte before import.
+
+No sibling checkout is used at runtime or during clean staging.
+
+## Privacy and clinical boundary
+
+The app has no backend, database, telemetry, cookies, browser storage, upload path, or
+input-bearing URL. Values exist only in page and worker memory; exports are created locally after
+an explicit button press. Synthetic fixtures contain no clinical records.
+
+The app is an educational and research-facing design aid, not a validated clinical or regulatory
+device. It does not diagnose, recommend treatment, select a clinical MCID, or validate a study
+design.
+
+See [scientific scope](docs/SCIENTIFIC_SCOPE.md), [validation](docs/VALIDATION.md),
+[privacy](docs/PRIVACY.md), and [provenance](docs/PROVENANCE.md).
+
+## Local development
 
 ```bash
 uv sync --locked
@@ -37,114 +115,24 @@ uv run playwright install chromium webkit
 make verify
 ```
 
-The initializer updates the existing lockfile identity, so `uv sync --locked` works immediately.
-If dependencies are added or changed later, intentionally run `uv lock`, review `uv.lock`, and
-rerun the full verification suite.
-
-Detailed initialization and replacement guidance is in
-[docs/TEMPLATE_USAGE.md](docs/TEMPLATE_USAGE.md).
-
-## Architecture
-
-```text
-browser form
-  -> dedicated Web Worker
-  -> verified generated Python bundle
-  -> template_applet.contract.calculate_json
-  -> strict JSON response
-  -> textual summary + Plotly hook + explicit exports
-```
-
-- `src/template_applet/` is the only source-of-truth Python package.
-- `browser-stage.toml` lists the app and zero or more optional, exact-version external packages.
-- `scripts/stage_browser_packages.py` discovers installed packages from the locked environment,
-  removes stale stage output, and emits file, package, and bundle SHA-256 hashes.
-- `web/pyodide_worker.js` verifies the manifest and every staged byte before loading Python. The
-  main thread can terminate and restart the worker after a failure.
-- `web/js/` separates inputs, runtime lifecycle, result rendering, exports, and accessibility.
-- `web/assets/py/` is generated, ignored, and never hand-edited.
-
-The template is copied at project creation time; it is not a shared runtime UI dependency.
-
-## Optional external scientific core
-
-The default stage has no external core. Add an installed, locked, pure-Python package to
-`browser-stage.toml`:
-
-```toml
-pyodide_packages = ["numpy", "scipy"]
-
-[[packages]]
-role = "core"
-distribution = "example-scientific-core"
-import_name = "example_scientific_core"
-version = "1.2.3"
-source = "external"
-artifact_url = "https://github.com/OWNER/REPO/releases/download/v1.2.3/example.whl"
-artifact_sha256 = "REPLACE_WITH_THE_64_CHARACTER_SHA256"
-```
-
-Pin the same artifact in `pyproject.toml` and `uv.lock`. Staging fails on a version mismatch,
-lock mismatch, artifact provenance mismatch, modified installed file, symlink, or unsafe package
-shape. External packages must be pure Python, use one regular top-level package, and expose
-`__version__`. List any Pyodide-provided dependencies in `pyodide_packages`.
-
-## Browser and exports
-
-The minimal responsive shell includes labels, linked error summaries, visible focus, an
-`aria-live` status, a keyboard-operable advanced-controls pattern, a textual result, a table, and
-a plot hook. Export helpers provide:
-
-- CSV from an explicit column list;
-- dashboard PNG;
-- figure-only/manuscript PNG;
-- copyable caption;
-- deterministic filename slugs.
-
-The example exports only the three displayed demonstration rows. Downstream apps must explicitly
-define their own columns, figure dimensions, caption, and scope.
-
-## Privacy
-
-The application is static and client-side. It has no backend, database, telemetry, cookies,
-browser storage, or input-bearing URL state. Inputs exist only in page and worker memory.
-Static CDN requests load pinned runtime libraries and do not contain user values. See
-[docs/PRIVACY.md](docs/PRIVACY.md).
-
-## Commands
+Other useful commands:
 
 ```bash
-uv sync --locked
 make stage-web
-make fmt
-make fmt-check
-make lint
 make test
 make e2e
 make e2e-webkit-smoke
-make verify
 make serve
-make clean
 ```
 
-`make verify` expects Chromium and WebKit to have been installed. CI runs the same targets. Pages
-deploys the staged `web/` directory, and tagged releases rerun all checks before publishing a
-deterministic source archive, browser-stage manifest, and checksums.
+## Source context
 
-## Author checklist
-
-Before calling an initialized app complete:
-
-1. Define the scientific question, assumptions, input/output units, formula authorities,
-   validation targets, limitations, and non-goals.
-2. Replace the demo request, response, computation, chart, table, caption, and fixtures.
-3. Decide whether an external released scientific core is required and pin it exactly.
-4. Replace generic browser copy without overstating validation or clinical readiness.
-5. Verify privacy, accessibility, strict JSON, Chromium, WebKit, cold initialization, and Pages.
-6. Update citation, license applicability, hosted URL, maintenance status, decision records, and
-   release notes.
+[Perugini et al., *Advances in Methods and Practices in Psychological Science* (2025)](https://journals.sagepub.com/doi/10.1177/25152459251335298)
+is carried forward from the integrated workbench for critical-effect-size design rationale
+(retrieved 2026-04-23). The transparent definitions above and released Core behavior govern the
+implemented quantity; no publication figure, table, dataset, or substantial text is copied.
 
 ## License and citation
 
-Code is MIT licensed. Copyright (c) 2026 Brian Locke. `CITATION.cff` is valid template metadata,
-but its author-action message must be resolved for the initialized scientific app.
+Code is MIT licensed. Copyright (c) 2026 Brian Locke. Cite the exact repository release or commit
+used; machine-readable metadata is in [`CITATION.cff`](CITATION.cff).

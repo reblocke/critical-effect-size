@@ -1,24 +1,28 @@
-# Scientific Applet Template
+# Wald Critical Effect Size
 
-Purpose: reusable static, client-side, Python-first scientific applet engineering scaffold.
+Purpose: exact one-parameter Wald critical-effect and selected-claim probability app.
 
 Important boundaries:
-- The repository implements no scientific formula.
-- The two-number addition is a replace-me demonstration only.
-- Python under `src/template_applet/` is source of truth.
-- `web/assets/py/` is generated from the locked environment and ignored.
-- Browser requests and responses use a strict JSON worker contract.
-- There is no backend, persistence, telemetry, cookie, or input-bearing URL.
+- Exact critical effect is a forward fixed-SE repeated-study operating characteristic.
+- It is not a confidence bound, observed evidence, posterior probability, validated MCID, or
+  study-specific sample-size result.
+- Released `wald-inference` v0.3.0 is the sole numerical authority.
+- The legacy z-sum value is labeled a closed-form benchmark, never the exact two-tailed solution.
+- Ratio effects use log-scale SE and multiplicative natural-scale symmetry.
+- Python under `src/critical_effect_size/` owns strict orchestration and display payloads.
+- `web/assets/py/` is generated from the checksum-bound locked environment and ignored.
+- There is no backend, persistence, telemetry, cookie, upload, or input-bearing URL.
+
+Focused response:
+`meta`, `precision`, `rule`, `critical_effect`, `legacy_benchmark_optional`,
+`probability_curve`, `reference_effects`, `warnings`.
 
 Key files:
-- `README.md`: initialization and architecture.
-- `docs/TEMPLATE_USAGE.md`: downstream author workflow.
-- `docs/SCIENTIFIC_SCOPE.md`: required scientific scope prompts.
-- `docs/VALIDATION.md`: validation plan and evidence prompts.
-- `docs/PRIVACY.md`: data-flow boundary.
-- `browser-stage.toml`: exact package and Pyodide configuration.
-- `scripts/stage_browser_packages.py`: deterministic staging.
-- `scripts/initialize_template.py`: guarded identity initializer.
+- `docs/SCIENTIFIC_SCOPE.md`: definitions, inputs, outputs, assumptions, and non-goals.
+- `docs/VALIDATION.md`: numerical, browser, privacy, accessibility, and release gates.
+- `docs/PROVENANCE.md`: template, Core, fixture, reference, author, and license provenance.
+- `browser-stage.toml`: exact app/Core and Pyodide configuration.
+- `scripts/stage_browser_packages.py`: deterministic checksum-verified staging.
 
 Canonical verification:
 `uv sync --locked && uv run playwright install chromium webkit && make verify`

@@ -12,7 +12,6 @@ help:
 	@echo "  e2e              Run the full Chromium browser suite"
 	@echo "  e2e-webkit-smoke Run the initial WebKit worker smoke test"
 	@echo "  verify           Run formatting, lint, tests, Chromium, and WebKit"
-	@echo "  template-self-test Initialize and verify a disposable app"
 	@echo "  serve            Stage and serve web/ on http://127.0.0.1:8000"
 	@echo "  clean            Remove generated and local test artifacts"
 
@@ -61,10 +60,6 @@ e2e-webkit-smoke: stage-web
 
 .PHONY: verify
 verify: fmt-check lint test e2e e2e-webkit-smoke
-
-.PHONY: template-self-test
-template-self-test:
-	uv run python scripts/self_test_template.py --browser chromium
 
 .PHONY: serve
 serve: stage-web

@@ -1,29 +1,57 @@
 # Decisions
 
-## 2026-07-29 — Functional Python core and browser worker
+## 2026-07-29 — Functional Python contract and verified browser worker
 
-Python is the calculation source of truth. The static UI sends strict JSON to a restartable
-Web Worker running exact-version Pyodide. This prevents Python initialization and calculation
-from blocking the main UI thread.
+Python is the contract source of truth. The static UI sends strict JSON to a restartable Web Worker
+running exact-version Pyodide. Installed app and Core files are generated from the locked
+environment, ignored in Git, and verified by file, package, and aggregate hashes before import.
 
-## 2026-07-29 — Generated, verified browser stage
+The repository owns its copied UI at creation time rather than depending on a live shared
+template. There is no backend, telemetry, persistence, cookie, or input-bearing URL.
 
-The installed locked app and optional external packages are staged from a TOML manifest.
-Generated files are ignored. File, package, and aggregate hashes are verified before Python is
-loaded, avoiding a manually synchronized JavaScript file list.
+## 2026-07-30 — Released Core is the sole numerical authority
 
-## 2026-07-29 — No live shared UI dependency
+`wald-inference` v0.3.0 owns effect transformations, CI reconstruction, selected-claim
+probabilities, power curves, critical-effect inversion, information scaling, and the legacy
+benchmark. The app owns strict validation, orchestration, warnings, display payloads, and exports
+but implements no alternative Wald probability or solver.
 
-The repository is a creation-time template, not a runtime framework. Initialized apps may evolve
-independently without a shared component release becoming an application availability risk.
+The dependency is pinned to the release wheel URL and SHA-256 in `pyproject.toml`, `uv.lock`, and
+`browser-stage.toml`. A sibling checkout is never a staging source.
 
-## 2026-07-29 — Strict client-side privacy boundary
+## 2026-07-30 — Exact critical effect is primary
 
-There is no backend, telemetry, persistence, cookie, or input-bearing URL. Static CDN requests do
-not include user input.
+The primary quantity is the smallest representable directed effect whose exact selected-claim
+probability meets the requested target under a fixed-SE one-parameter Wald model. Two-sided
+selection reports paired directions; one-sided selection reports only its selected direction.
 
-## New decision record
+The preserved z-sum calculation appears only at its fixed historical defaults and is labeled
+**Legacy closed-form benchmark**, with an explicit statement that it is not the exact two-tailed
+solution.
 
-AUTHOR ACTION REQUIRED: append dated decisions that change scientific meaning, runtime,
-dependencies, validation, privacy, exports, accessibility, or maintenance. Do not silently
-rewrite historical decisions.
+## 2026-07-30 — Separate prospective detectability from observed evidence
+
+The reported CI reconstructs precision and may be shaded only as observed context. An observed
+estimate is an optional marker and is not used to report “observed power.” Power is evaluated at a
+user-specified meaningful-effect scenario, which is explicitly not clinically or scientifically
+validated by the app.
+
+An information multiplier changes only hypothetical SE through released Core. It is labeled
+relative information and not automatically translated into sample size.
+
+## 2026-07-30 — Ratio effects use log-distance semantics
+
+Direct SE for ratio measures is on the log scale. Exact critical effects are solved on that scale
+and converted through Core to natural ratios. Paired natural values are described as
+multiplicatively, not arithmetically, symmetric around the null ratio.
+
+## 2026-07-30 — Focused stable response and exports
+
+The response has exactly `meta`, `precision`, `rule`, `critical_effect`,
+`legacy_benchmark_optional`, `probability_curve`, `reference_effects`, and `warnings`. It has no
+compatibility, likelihood, S−2, Type S/M, threshold-conditioned, or multi-target precision-planner
+sections.
+
+CSV exports exactly the natural/working true effect and current/scenario selected-claim
+probabilities. PNGs and the caption disclose conditioning, information scenario, CI context, and
+display-range omissions.

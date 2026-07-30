@@ -60,15 +60,57 @@ function loadImage(dataUrl) {
   });
 }
 
-export function exportCsv(rows, appTitle) {
+function drawWrappedText(context, text, x, y, maxWidth, lineHeight, maxLines) {
+  const words = text.split(/\s+/);
+  let line = "";
+  let lineIndex = 0;
+  for (const word of words) {
+    const candidate = line ? `${line} ${word}` : word;
+    if (context.measureText(candidate).width <= maxWidth) {
+      line = candidate;
+      continue;
+    }
+    context.fillText(line, x, y + lineIndex * lineHeight);
+    lineIndex += 1;
+    if (lineIndex >= maxLines) {
+      return;
+    }
+    line = word;
+  }
+  if (line && lineIndex < maxLines) {
+    context.fillText(line, x, y + lineIndex * lineHeight);
+  }
+}
+
+export function curveRows(response) {
+  const curve = response.probability_curve;
+  return curve.true_effect_display.map((display, index) => ({
+    true_effect_display: display,
+    true_effect_working: curve.true_effect_working[index],
+    current_selected_claim_probability:
+      curve.current_selected_claim_probability[index],
+    scenario_selected_claim_probability:
+      curve.scenario_selected_claim_probability[index],
+  }));
+}
+
+export function exportCsv(response, appTitle) {
   const columns = [
-    { key: "label", label: "Label" },
-    { key: "value", label: "Value" },
+    { key: "true_effect_display", label: "true_effect_display" },
+    { key: "true_effect_working", label: "true_effect_working" },
+    {
+      key: "current_selected_claim_probability",
+      label: "current_selected_claim_probability",
+    },
+    {
+      key: "scenario_selected_claim_probability",
+      label: "scenario_selected_claim_probability",
+    },
   ];
-  const csv = csvFromRows(columns, rows);
+  const csv = csvFromRows(columns, curveRows(response));
   downloadBlob(
     new Blob([csv], { type: "text/csv;charset=utf-8" }),
-    `${filenameSlug(appTitle)}-results.csv`,
+    `${filenameSlug(appTitle)}-probability-curve.csv`,
   );
 }
 
@@ -85,27 +127,27 @@ export async function exportFigurePng(plotElement, appTitle) {
 export async function exportDashboardPng(plotElement, summary, appTitle) {
   const plotDataUrl = await globalThis.Plotly.toImage(plotElement, {
     format: "png",
-    height: 800,
+    height: 820,
     scale: 1,
     width: 1200,
   });
   const plotImage = await loadImage(plotDataUrl);
   const canvas = document.createElement("canvas");
   canvas.width = 1400;
-  canvas.height = 1100;
+  canvas.height = 1200;
   const context = canvas.getContext("2d");
   context.fillStyle = "#ffffff";
   context.fillRect(0, 0, canvas.width, canvas.height);
   context.fillStyle = "#17202a";
   context.font = "700 42px system-ui";
   context.fillText(appTitle, 80, 80, 1240);
-  context.font = "26px system-ui";
-  context.fillText(summary, 80, 140, 1240);
-  context.drawImage(plotImage, 100, 210, 1200, 800);
+  context.font = "24px system-ui";
+  drawWrappedText(context, summary, 80, 135, 1240, 34, 4);
+  context.drawImage(plotImage, 100, 300, 1200, 820);
   const blob = await canvasBlob(canvas);
   downloadBlob(blob, `${filenameSlug(appTitle)}-dashboard.png`);
 }
 
-export async function copyCaption(caption) {
-  await navigator.clipboard.writeText(caption);
+export async function copyText(text) {
+  await navigator.clipboard.writeText(text);
 }

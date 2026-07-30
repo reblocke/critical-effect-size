@@ -1,39 +1,115 @@
 # Scientific Scope
 
-The uninitialized template is an engineering scaffold and does not answer a scientific question.
-The arithmetic demonstration must not be described as a scientific method.
-
 ## Question
 
-AUTHOR ACTION REQUIRED: state one focused scientific question in terms a user can evaluate.
+Given a one-parameter Wald standard error, selected-claim rule, alpha, and target probability, what
+is the smallest true effect in the selected direction whose exact selected-claim probability is at
+least the target?
+
+With
+
+```text
+delta = (theta_true - theta_null) / SE
+```
+
+and a future `Z ~ Normal(delta, 1)`:
+
+- two-sided selection at alpha uses
+  `P(Z < -z_(1-alpha/2)) + P(Z > z_(1-alpha/2))`;
+- one-sided positive selection uses `P(Z > z_(1-alpha))`;
+- one-sided negative selection uses `P(Z < -z_(1-alpha))`.
+
+The exact critical effect is the smallest representable effect in the relevant direction meeting
+the probability target under that model. For the symmetric two-sided rule, the app reports both
+directions.
 
 ## Intended users and setting
 
-AUTHOR ACTION REQUIRED: name intended users, setting, and whether the app is educational,
-research-facing, operational, or another clearly bounded category.
+The app is an educational and research-facing design aid for people interpreting a one-parameter
+Wald analysis. It separates current precision, prospective statistical detectability,
+user-specified scientific importance, an optional observed estimate, and reported-CI context.
+
+It is not intended for bedside care, diagnosis, treatment selection, regulatory decisions, or
+automated study approval.
 
 ## Inputs
 
-AUTHOR ACTION REQUIRED: define every input, type, allowed range, missing-value rule, and unit.
-State whether an input could be sensitive.
+- `effect_type`: one of the nine released Core effect-registry keys.
+- `precision_mode`: nominal reported 95% CI or direct working-scale SE.
+- `ci_lower`, `ci_upper`: finite natural-scale limits, required together in CI mode.
+- `standard_error`: finite positive working-scale SE, required in direct-SE mode. Ratio measures
+  require a log-scale SE; additive measures require an identity-scale SE.
+- `observed_estimate`: optional finite natural-scale context marker. In CI mode Core validates it
+  against the CI-implied midpoint; in direct-SE mode it is display-only.
+- `null_value`: finite natural-scale null; ratio inputs must be strictly positive.
+- `alpha`: finite value strictly between zero and one.
+- `selection_rule`: two-sided, one-sided positive, or one-sided negative p-value selection.
+- `target_probability`: finite value strictly between zero and one.
+- `meaningful_effect`: optional finite natural-scale scenario. The app does not validate its
+  clinical or scientific importance.
+- `information_multiplier`: finite positive relative information. It is not automatically sample
+  size.
+- `display_min`, `display_max`: optional finite natural-scale pair with minimum less than maximum.
+
+Entered clinical values could be sensitive even without identifiers. The app keeps them in
+browser memory only; see `PRIVACY.md`.
 
 ## Outputs
 
-AUTHOR ACTION REQUIRED: define every displayed and exported output, its unit, interpretation, and
-relationship to uncertainty. State which output is primary.
+The primary output is the exact critical-effect value or pair on the natural display scale, with
+signed standardized delta, working-scale value, and achieved probability. The app also returns:
 
-## Assumptions and formula authority
+- current and information-scenario working-scale SE;
+- exact selected-claim probability curves under both precision states;
+- exact 50%, 80%, and 90% reference critical effects;
+- exact probability at an optional meaningful-effect scenario;
+- optional observed-estimate and reported-CI context markers;
+- a legacy closed-form benchmark only for the historical two-sided alpha 0.05 / target 0.80 case;
+- strict JSON, explicit curve CSV, figure PNG, dashboard PNG, and caption.
 
-AUTHOR ACTION REQUIRED: list assumptions and cite the primary source, protocol, specification, or
-released core that authorizes each formula. Do not infer a formula from the template.
+The reported CI is a precision-reconstruction input and shaded context, not a true-effect
+distribution. The observed estimate is not used to create an “observed power” result.
 
-## Limitations and non-goals
+## Formula authority and assumptions
 
-AUTHOR ACTION REQUIRED: name unsupported populations, methods, interpretations, decisions, and
-uses. Say what the app must not be used to conclude.
+Released `wald-inference` v0.3.0 is the sole numerical authority. The app calls:
 
-## Clinical or regulatory boundary
+- `reconstruct_wald_from_95_ci`;
+- `to_working_scale` and `from_working_scale`;
+- `selected_claim_probability` and `power_curve`;
+- `critical_effect_for_target_probability`;
+- `information_scaled_standard_error`;
+- `legacy_critical_effect_distance` and `legacy_critical_effect_markers`.
 
-AUTHOR ACTION REQUIRED: if clinical values or language are possible, state whether the app is an
-educational aid, research tool, or validated device. Do not claim clinical or regulatory
-readiness merely because the software tests pass.
+The app does not implement a Wald probability or inverse formula locally.
+
+Assumptions are a one-parameter normal/Wald sampling approximation, a fixed valid working-scale SE,
+the selected p-value rule, and a true effect treated as fixed for each prospective probability.
+Ratio effects use log distance from the null; equal log distances are multiplicatively symmetric.
+
+The Perugini et al. AMPS 2025 source carried from the integrated repository supplies
+critical-effect-size design rationale. It does not supersede the transparent definitions or
+released Core numerical contract.
+
+## Distinctions and limitations
+
+- Exact critical effect is not an MCID. A user-entered meaningful effect is an unvalidated scenario.
+- Exact critical effect is not a confidence bound and does not describe effects excluded by an
+  observed CI.
+- Exact critical effect is not an observed estimate and is not evidence about an observed dataset.
+- The historical z-sum marker is a legacy closed-form benchmark, not the exact two-tailed inverse.
+- The information multiplier is relative information, not automatically a sample-size multiplier.
+- Study-specific sample-size planning may differ because it can require outcome variance,
+  allocation, clustering, attrition, survival-event, noncentral-distribution, or other design
+  assumptions absent here.
+
+Out of scope are noncentral t/F/chi-square designs, arbitrary non-Wald intervals, study-specific
+sample-size formulas, cluster or attrition adjustments, Type S/M, likelihood or compatibility
+curves, threshold-conditioned selection rules, and multi-target inverse precision planning.
+
+## Clinical and regulatory boundary
+
+Software verification establishes only the documented mathematical and engineering contract. It
+does not establish clinical validity, clinical utility, regulatory clearance, or suitability for
+patient-specific decisions. The app provides no diagnosis or treatment recommendation and does
+not transmit, store, or link entered values.
