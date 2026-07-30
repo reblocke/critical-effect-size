@@ -1,11 +1,11 @@
 {
-  "initialized": false,
+  "initialized": true,
   "schema_version": 1,
   "values": {
-    "app_title": "Scientific Applet Template",
-    "description": "Reusable client-side Python scaffold for a focused scientific applet",
-    "distribution_name": "scientific-applet-template-package",
-    "import_name": "template_applet",
-    "repository_name": "scientific-applet-template"
+    "app_title": "Wald Critical Effect Size",
+    "description": "Exact one-parameter Wald detectability and critical-effect calculations",
+    "distribution_name": "critical-effect-size",
+    "import_name": "critical_effect_size",
+    "repository_name": "critical-effect-size"
   }
 }

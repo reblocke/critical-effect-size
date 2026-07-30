@@ -1,38 +1,35 @@
 # Maintenance
 
-## Status
+## Status and ownership
 
-Template status: active engineering scaffold, version 0.1.0.
+Status: active experimental scientific app, version 0.1.0.
 
-AUTHOR ACTION REQUIRED after initialization: choose and state one maintenance status such as
-experimental, active, maintenance-only, archived, or superseded.
-
-## Ownership
-
-Maintainer: Brian Locke (`@reblocke`). Use repository issues and pull requests for public project
-coordination.
-
-AUTHOR ACTION REQUIRED: confirm downstream ownership, review responsibilities, and a contact path.
+Maintainer: Brian Locke (`@reblocke`). Use repository issues and pull requests for public
+coordination. Scientific behavior changes require review of Core authority, app contract, tests,
+public wording, and export interpretation.
 
 ## Dependency updates
 
-Review Pyodide, Plotly, Python, uv, Ruff, pytest, Hypothesis, Playwright, and GitHub Actions
-updates deliberately. For any external scientific core:
+Review Pyodide, Plotly, Python, uv, Ruff, pytest, Playwright, and GitHub Actions updates
+deliberately. For a `wald-inference` upgrade:
 
-1. review its release notes and scientific changes;
-2. update the exact package version and artifact checksum;
-3. regenerate and review `uv.lock`;
-4. run strict JSON, frozen scientific fixtures, staging, Chromium, and WebKit validation;
-5. record the adopted core version in docs, UI, and release notes.
+1. review its release notes, exact API, and scientific changes;
+2. bind the exact release wheel URL and SHA-256 in `pyproject.toml`, `uv.lock`, and
+   `browser-stage.toml`;
+3. regenerate the environment and inspect the lock;
+4. rerun strict JSON, scientific references, frozen regressions, staging, Chromium, WebKit, and a
+   clean-checkout stage without sibling repositories;
+5. update Core versions and validation evidence in docs, UI, and release notes.
 
 ## Release
 
-Use a reviewed pull request. After the exact merge commit is verified, create an annotated
-semantic-version tag. The release workflow reruns the full suite and publishes a prerelease with
-a deterministic source archive, browser-stage manifest, and SHA-256 checksums. Promote a release
-only after hosted Pages and portfolio-level validation are complete.
+Use a reviewed pull request. Verify the exact expected head, merge, then create an annotated
+semantic-version tag at that merge commit. The release workflow reruns `make verify` and publishes
+a prerelease with a deterministic source archive, browser-stage manifest, and SHA-256 checksums.
+Promote only after Pages and hosted smoke checks pass.
 
 ## Deprecation
 
-AUTHOR ACTION REQUIRED: define how users will be warned, how long the hosted app will remain
-available, and where a successor is documented. Do not silently redirect or delete an old URL.
+No deprecation is scheduled. If the app is deprecated, publish a tagged notice, add visible README
+and hosted-app banners naming any successor, and retain historical release artifacts. Do not
+silently redirect or delete the public URL.

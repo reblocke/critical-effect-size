@@ -1,15 +1,20 @@
 from __future__ import annotations
 
 import hashlib
-import importlib.metadata
 import json
 import subprocess
+import tomllib
 from pathlib import Path
 
 import pytest
 from scripts.stage_browser_packages import StagingError, stage_browser_packages
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+CORE_URL = (
+    "https://github.com/reblocke/wald-inference-core/releases/download/"
+    "v0.3.0/wald_inference-0.3.0-py3-none-any.whl"
+)
+CORE_SHA256 = "630fdece13c2940f751d1f5d3a4d6477182dbb099131a9907ceef7067348f939"
 
 
 def _descriptor(files: list[dict[str, object]]) -> str:
@@ -19,14 +24,16 @@ def _descriptor(files: list[dict[str, object]]) -> str:
     )
 
 
-def test_stage_manifest_records_versions_files_and_hashes(tmp_path: Path) -> None:
+def test_stage_manifest_records_versions_provenance_files_and_hashes(
+    tmp_path: Path,
+) -> None:
     target = tmp_path / "py"
     manifest = stage_browser_packages(target, project_root=PROJECT_ROOT)
 
     assert json.loads((target / "manifest.json").read_text(encoding="utf-8")) == manifest
     assert manifest["schema_version"] == 1
     assert manifest["pyodide_version"] == "0.29.3"
-    assert manifest["pyodide_packages"] == []
+    assert manifest["pyodide_packages"] == ["numpy", "scipy"]
     assert (
         manifest["source_commit"]
         == subprocess.run(
@@ -37,23 +44,47 @@ def test_stage_manifest_records_versions_files_and_hashes(tmp_path: Path) -> Non
             text=True,
         ).stdout.strip()
     )
-    [package] = manifest["packages"]
-    assert package["role"] == "app"
-    assert package["distribution"] == "scientific-applet-template-package"
-    assert package["import_name"] == "template_applet"
-    assert package["version"] == "0.1.0"
-    assert package["artifact_url"] is None
-    assert package["artifact_sha256"] is None
-    assert package["files"]
+    app, core = manifest["packages"]
+    assert {key: app[key] for key in ("role", "distribution", "import_name", "version")} == {
+        "role": "app",
+        "distribution": "critical-effect-size",
+        "import_name": "critical_effect_size",
+        "version": "0.1.0",
+    }
+    assert app["artifact_url"] is None
+    assert app["artifact_sha256"] is None
+    assert {key: core[key] for key in ("role", "distribution", "import_name", "version")} == {
+        "role": "core",
+        "distribution": "wald-inference",
+        "import_name": "wald_inference",
+        "version": "0.3.0",
+    }
+    assert core["artifact_url"] == CORE_URL
+    assert core["artifact_sha256"] == CORE_SHA256
 
-    all_files = package["files"]
+    all_files = [record for package in (app, core) for record in package["files"]]
     for record in all_files:
         contents = (target / record["path"]).read_bytes()
         assert len(contents) == record["bytes"]
         assert hashlib.sha256(contents).hexdigest() == record["sha256"]
-    descriptor = _descriptor(all_files)
-    assert hashlib.sha256(descriptor.encode()).hexdigest() == package["package_sha256"]
-    assert hashlib.sha256(descriptor.encode()).hexdigest() == manifest["bundle_sha256"]
+    for package in (app, core):
+        descriptor = _descriptor(package["files"])
+        assert hashlib.sha256(descriptor.encode()).hexdigest() == package["package_sha256"]
+    assert hashlib.sha256(_descriptor(all_files).encode()).hexdigest() == manifest["bundle_sha256"]
+
+
+def test_lock_uses_the_exact_released_core_wheel_and_checksum() -> None:
+    lock = tomllib.loads((PROJECT_ROOT / "uv.lock").read_text(encoding="utf-8"))
+    [core] = [package for package in lock["package"] if package["name"] == "wald-inference"]
+
+    assert core["version"] == "0.3.0"
+    assert core["source"] == {"url": CORE_URL}
+    assert core["wheels"] == [
+        {
+            "url": CORE_URL,
+            "hash": f"sha256:{CORE_SHA256}",
+        }
+    ]
 
 
 def test_stage_is_deterministic_and_removes_stale_files(tmp_path: Path) -> None:
@@ -73,7 +104,10 @@ def test_stage_is_deterministic_and_removes_stale_files(tmp_path: Path) -> None:
 def test_stage_fails_on_configured_version_mismatch(tmp_path: Path) -> None:
     config = tmp_path / "browser-stage.toml"
     source = (PROJECT_ROOT / "browser-stage.toml").read_text(encoding="utf-8")
-    config.write_text(source.replace('version = "0.1.0"', 'version = "9.9.9"'), encoding="utf-8")
+    config.write_text(
+        source.replace('version = "0.3.0"', 'version = "9.9.9"'),
+        encoding="utf-8",
+    )
 
     with pytest.raises(StagingError, match="expected '9.9.9'"):
         stage_browser_packages(
@@ -83,26 +117,16 @@ def test_stage_fails_on_configured_version_mismatch(tmp_path: Path) -> None:
         )
 
 
-def test_stage_supports_an_external_locked_pure_python_package(tmp_path: Path) -> None:
-    version = importlib.metadata.version("hypothesis")
+def test_stage_fails_when_configured_core_checksum_differs_from_lock(
+    tmp_path: Path,
+) -> None:
     config = tmp_path / "browser-stage.toml"
-    config.write_text(
-        (PROJECT_ROOT / "browser-stage.toml").read_text(encoding="utf-8")
-        + "\n[[packages]]\n"
-        + 'role = "test-core"\n'
-        + 'distribution = "hypothesis"\n'
-        + 'import_name = "hypothesis"\n'
-        + f'version = "{version}"\n'
-        + 'source = "external"\n',
-        encoding="utf-8",
-    )
+    source = (PROJECT_ROOT / "browser-stage.toml").read_text(encoding="utf-8")
+    config.write_text(source.replace(CORE_SHA256, "0" * 64), encoding="utf-8")
 
-    manifest = stage_browser_packages(
-        tmp_path / "py",
-        project_root=PROJECT_ROOT,
-        config_path=config,
-    )
-
-    assert [package["role"] for package in manifest["packages"]] == ["app", "test-core"]
-    assert manifest["packages"][1]["version"] == version
-    assert manifest["packages"][1]["files"]
+    with pytest.raises(StagingError, match="configured checksum"):
+        stage_browser_packages(
+            tmp_path / "py",
+            project_root=PROJECT_ROOT,
+            config_path=config,
+        )

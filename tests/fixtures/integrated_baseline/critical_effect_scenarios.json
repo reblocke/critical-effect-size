@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "source_behavior_commit": "830756ecb11b4e8161f8dfe1fc75afc346ef4467",
+  "cases": [
+    {
+      "name": "additive_legacy_precision",
+      "standard_error": 0.15816617164664273,
+      "exact_positive_working": 0.4431154658069169,
+      "legacy_distance_working": 0.4431160084907528
+    },
+    {
+      "name": "log_scale_legacy_precision",
+      "standard_error": 0.20687375447019513,
+      "exact_positive_working": 0.5795737427348426,
+      "legacy_distance_working": 0.5795744525392302
+    }
+  ]
+}

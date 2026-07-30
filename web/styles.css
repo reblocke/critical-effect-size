@@ -9,12 +9,17 @@
   --accent-dark: #184954;
   --border: #bcc8cc;
   --danger: #a12622;
+  --focus: #8a5a00;
   --paper: #ffffff;
   --muted: #53646b;
 }
 
 * {
   box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
 }
 
 body {
@@ -27,7 +32,8 @@ a {
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
 }
 
@@ -57,7 +63,7 @@ button:disabled {
 }
 
 :focus-visible {
-  outline: 3px solid #e69f00;
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 
@@ -155,8 +161,7 @@ footer section {
 }
 
 .controls {
-  position: sticky;
-  top: 1rem;
+  align-self: start;
 }
 
 .scope-note,
@@ -171,17 +176,44 @@ details {
   margin-block: 1rem;
 }
 
+.field-row,
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
 label {
   font-weight: 750;
 }
 
-input {
+input,
+select {
   width: 100%;
   min-height: 2.75rem;
   border: 2px solid var(--border);
   border-radius: 0.4rem;
   padding: 0.55rem 0.65rem;
   background: #fff;
+}
+
+.field-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+fieldset {
+  margin: 0 0 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 0.55rem;
+  padding: 0.4rem 0.85rem 0.8rem;
+}
+
+legend {
+  padding-inline: 0.35rem;
+  color: var(--accent-dark);
+  font-weight: 800;
 }
 
 input[aria-invalid="true"] {
@@ -229,9 +261,16 @@ summary {
   font-weight: 650;
 }
 
+.conditioning-banner {
+  border-left: 0.35rem solid #b05a00;
+  padding: 0.75rem 0.9rem;
+  background: #fff5e8;
+  font-weight: 650;
+}
+
 .plot {
   width: 100%;
-  min-height: 26rem;
+  min-height: 38rem;
 }
 
 .table-wrap {
@@ -257,6 +296,46 @@ td {
   text-align: left;
 }
 
+.summary-grid section,
+.notice-box,
+.warnings-box {
+  margin-block: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.55rem;
+  padding: 1rem;
+  background: #fafcfc;
+}
+
+.summary-grid section {
+  margin-block: 0;
+}
+
+.summary-grid h3,
+.notice-box h3,
+.warnings-box h3 {
+  margin-bottom: 0.45rem;
+  font-size: 1rem;
+}
+
+.summary-grid p,
+.notice-box p,
+.warnings-box ul {
+  margin-bottom: 0;
+}
+
+.figure-caption {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.scenario-note {
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 400;
+}
+
 footer {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -275,12 +354,10 @@ footer h2 {
 @media (max-width: 52rem) {
   .site-header,
   .app-shell,
-  footer {
+  footer,
+  .field-row,
+  .summary-grid {
     grid-template-columns: 1fr;
-  }
-
-  .controls {
-    position: static;
   }
 }
 
