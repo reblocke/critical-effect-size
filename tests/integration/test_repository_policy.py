@@ -111,6 +111,26 @@ def test_public_docs_have_no_unresolved_template_prompts() -> None:
     assert "6a6c8c33cbef24b5dcbd35706d2292d9d3e5e359" in provenance
 
 
+def test_readme_records_current_version_release_status_and_citation() -> None:
+    readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    project_version = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))[
+        "project"
+    ]["version"]
+
+    assert f"Current app version: **{project_version}**." in normalized_readme
+    assert (
+        f"https://github.com/reblocke/critical-effect-size/releases/tag/v{project_version}"
+    ) in readme
+    assert "Release maturity: experimental software." in normalized_readme
+    assert (
+        "GitHub publication state is recorded on the versioned release page." in normalized_readme
+    )
+    assert "[`CITATION.cff`](CITATION.cff)" in readme
+    assert "cite the exact tagged release used" in normalized_readme
+    assert "cite the exact repository commit instead" in normalized_readme
+
+
 def test_related_wald_tools_are_exact_in_readme_and_footer() -> None:
     readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
     html = (PROJECT_ROOT / "web" / "index.html").read_text(encoding="utf-8")
