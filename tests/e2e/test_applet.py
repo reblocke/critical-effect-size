@@ -337,3 +337,123 @@ def test_mobile_plot_labels_are_contained_and_nonoverlapping(
         "#plot .xtick text, #plot .xtitle",
     )
     _assert_nonoverlapping([observed_label, *x_axis_labels])
+
+
+def test_plot_uses_container_width_and_rerenders_across_compact_boundary(
+    page: Page,
+    app_url: str,
+) -> None:
+    page.set_viewport_size({"width": 850, "height": 900})
+    _ready(page, app_url)
+    page.locator("#calculate").click()
+    expect(page.locator("#runtime-status")).to_have_text("Calculation complete.")
+
+    plot = page.locator("#plot")
+    expect(plot).to_have_attribute("data-compact", "true")
+    assert plot.evaluate("(element) => element.getBoundingClientRect().width") <= 480
+    expect(plot.locator(".textpoint")).to_have_count(0)
+
+    page.evaluate(
+        """() => {
+          const original = globalThis.Plotly.react.bind(globalThis.Plotly);
+          globalThis.__responsiveReactCalls = [];
+          globalThis.Plotly.react = async (...args) => {
+            const title = args[2].title.text;
+            globalThis.__responsiveReactCalls.push(
+              title.includes("<br>") ? "compact" : "noncompact",
+            );
+            return original(...args);
+          };
+        }"""
+    )
+
+    page.set_viewport_size({"width": 870, "height": 900})
+    page.wait_for_timeout(250)
+    assert plot.evaluate("(element) => element.getBoundingClientRect().width") <= 480
+    assert page.evaluate("globalThis.__responsiveReactCalls") == []
+
+    page.set_viewport_size({"width": 1200, "height": 900})
+    expect(plot).to_have_attribute("data-compact", "false")
+    assert plot.evaluate("(element) => element.getBoundingClientRect().width") > 480
+    expect(plot.locator(".textpoint").filter(has_text="Exact current")).not_to_have_count(0)
+    assert page.evaluate("globalThis.__responsiveReactCalls") == ["noncompact"]
+
+    page.set_viewport_size({"width": 1250, "height": 900})
+    page.wait_for_timeout(250)
+    assert page.evaluate("globalThis.__responsiveReactCalls") == ["noncompact"]
+
+    page.set_viewport_size({"width": 850, "height": 900})
+    expect(plot).to_have_attribute("data-compact", "true")
+    expect(plot.locator(".textpoint")).to_have_count(0)
+    assert page.evaluate("globalThis.__responsiveReactCalls") == [
+        "noncompact",
+        "compact",
+    ]
+
+
+def test_mobile_origin_png_exports_use_noncompact_plot(
+    page: Page,
+    app_url: str,
+    tmp_path: Path,
+) -> None:
+    page.set_viewport_size({"width": 390, "height": 844})
+    _ready(page, app_url)
+    page.locator("#calculate").click()
+    expect(page.locator("#runtime-status")).to_have_text("Calculation complete.")
+    expect(page.locator("#plot")).to_have_attribute("data-compact", "true")
+
+    page.evaluate(
+        """() => {
+          const original = globalThis.Plotly.toImage.bind(globalThis.Plotly);
+          globalThis.__exportPlotSnapshots = [];
+          globalThis.Plotly.toImage = async (element, options) => {
+            globalThis.__exportPlotSnapshots.push({
+              annotations: element.layout.annotations.map((item) => item.text),
+              compact: element.dataset.compact,
+              isLivePlot: element.id === "plot",
+              layoutHeight: element.layout.height,
+              layoutWidth: element.layout.width,
+              modes: element.data.map((trace) => trace.mode || null),
+              options,
+              renderMode: element.dataset.renderMode,
+              title: element.layout.title.text,
+            });
+            return original(element, options);
+          };
+        }"""
+    )
+
+    for selector, dimensions in [
+        ("#export-figure", (1600, 1200)),
+        ("#export-dashboard", (1400, 1200)),
+    ]:
+        with page.expect_download(timeout=60_000) as download_info:
+            page.locator(selector).click()
+        download = download_info.value
+        path = tmp_path / download.suggested_filename
+        download.save_as(path)
+        assert _png_dimensions(path) == dimensions
+
+    snapshots = page.evaluate("globalThis.__exportPlotSnapshots")
+    assert len(snapshots) == 2
+    assert [
+        (
+            snapshot["options"]["width"],
+            snapshot["options"]["height"],
+            snapshot["layoutWidth"],
+            snapshot["layoutHeight"],
+        )
+        for snapshot in snapshots
+    ] == [(1600, 1200, 1600, 1200), (1200, 820, 1200, 820)]
+    for snapshot in snapshots:
+        assert snapshot["compact"] == "false"
+        assert snapshot["renderMode"] == "export"
+        assert snapshot["isLivePlot"] is False
+        assert snapshot["title"] == ("Exact selected-claim probability across assumed true effects")
+        assert snapshot["modes"].count("markers+text") >= 3
+        assert "Reported 95% CI context" in snapshot["annotations"]
+        assert "Observed estimate (context only)" in snapshot["annotations"]
+
+    expect(page.locator("#plot")).to_have_attribute("data-compact", "true")
+    expect(page.locator("#plot .textpoint")).to_have_count(0)
+    expect(page.locator("[data-export-plot]")).to_have_count(0)

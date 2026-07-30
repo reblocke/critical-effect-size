@@ -65,12 +65,18 @@ display-range omissions.
 
 ## 2026-07-30 — Compact plots prioritize readable labels
 
-At viewports up to 480 px wide, the plot wraps its title and long contextual annotations, hides
-the mode bar, and moves critical-effect, null, and meaningful-scenario marker labels into a
-compact legend. The desktop plot retains direct marker labels. Both layouts render the same
-curves, markers, annotations, hover values, and exports; this is a presentation-only change and
-does not alter the app contract or released-Core calculations.
+When the rendered plot—not merely the browser window—is at most 480 px wide, the plot wraps its
+title and long contextual annotations, hides the mode bar, and moves critical-effect, null, and
+meaningful-scenario marker labels into a compact legend. A `ResizeObserver` rebuilds the plot only
+when its measured container crosses that category. Wider plots retain direct marker labels.
 
-The compact layout is guarded at 390 px with real Plotly text bounding boxes. Page-level
-`scrollWidth` alone is insufficient because an SVG title can be clipped without widening the
-document.
+Figure and dashboard PNGs always render a temporary, fixed-size noncompact plot with direct marker
+labels and export-scale typography, even when the visible result is compact. The temporary plot is
+removed after image generation and does not change the live plot, response, or exported values.
+These are presentation-only choices and do not alter the app contract or released-Core
+calculations.
+
+The layout is guarded with real Plotly text bounding boxes at 390 px, a narrow two-column plot at
+an 850 px viewport, post-render breakpoint crossings, and mobile-origin export inspection.
+Page-level `scrollWidth` alone is insufficient because an SVG title can be clipped without
+widening the document.

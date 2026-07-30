@@ -7,11 +7,14 @@ All notable changes use a release-oriented record here. This repository follows
 
 ## [0.1.2] - 2026-07-30
 
-- Keep the exact selected-claim-probability title and contextual annotations readable at a 390 px
-  viewport by wrapping compact copy and moving plot-marker labels into a compact legend.
-- Add a real-Plotly browser regression that checks rendered title, legend, and annotation bounding
-  boxes for viewport containment and overlap. Numerical values, the focused response, exports, and
-  the checksum-bound `wald-inference` v0.4.1 authority are unchanged.
+- Keep the exact selected-claim-probability title and contextual annotations readable whenever the
+  rendered plot is at most 480 px wide, including a narrow plot in the two-column page layout.
+  Crossing that plot-width boundary now rebuilds the compact legend/direct-label layout.
+- Render figure and dashboard PNGs through a temporary noncompact plot so mobile-origin,
+  high-resolution exports retain direct marker labels and unwrapped export typography.
+- Add real-Plotly browser regressions for 390 px label containment, an 850 px two-column plot,
+  post-render breakpoint crossings, and mobile-origin export layout. Numerical values, the focused
+  response, and the checksum-bound `wald-inference` v0.4.1 authority are unchanged.
 
 ## [0.1.1] - 2026-07-30
 

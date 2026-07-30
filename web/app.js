@@ -11,7 +11,11 @@ import {
   readRequest,
   updateControlState,
 } from "./js/inputs.js";
-import { renderResult } from "./js/renderers.js";
+import {
+  plotUsesCompactLayout,
+  renderPlot,
+  renderResult,
+} from "./js/renderers.js";
 import { WorkerRuntime } from "./js/runtime.js";
 
 const form = document.querySelector("#applet-form");
@@ -23,6 +27,7 @@ const result = document.querySelector("#result");
 const summary = document.querySelector("#result-summary");
 const table = document.querySelector("#reference-table");
 const plot = document.querySelector("#plot");
+const plotContainer = plot.closest(".results");
 const exportButtons = [...document.querySelectorAll("[data-export]")];
 const copyButtons = [...document.querySelectorAll("[data-copy]")];
 const emptyState = document.querySelector(".empty-state");
@@ -30,6 +35,9 @@ const runtime = new WorkerRuntime();
 let currentResponse = null;
 let calculationGeneration = 0;
 let calculationInFlight = false;
+let observedPlotCompact = null;
+let resizeRenderGeneration = 0;
+let resizeRenderQueue = Promise.resolve();
 let runtimeGeneration = 0;
 let runtimeReady = false;
 
@@ -60,9 +68,67 @@ function setExportAvailability(enabled) {
 
 function clearResultState() {
   currentResponse = null;
+  observedPlotCompact = null;
+  resizeRenderGeneration += 1;
   result.hidden = true;
   emptyState.hidden = false;
   setExportAvailability(false);
+}
+
+function queueResponsivePlotRender(compact) {
+  const response = currentResponse;
+  const calculation = calculationGeneration;
+  const resizeGeneration = ++resizeRenderGeneration;
+  resizeRenderQueue = resizeRenderQueue
+    .catch(() => {})
+    .then(async () => {
+      if (
+        resizeGeneration !== resizeRenderGeneration ||
+        calculation !== calculationGeneration ||
+        response !== currentResponse ||
+        result.hidden
+      ) {
+        return;
+      }
+      await renderPlot(response, plot, { compact });
+    })
+    .catch(() => {
+      if (
+        resizeGeneration === resizeRenderGeneration &&
+        calculation === calculationGeneration &&
+        response === currentResponse
+      ) {
+        setStatus(
+          status,
+          "The plot could not adapt to the new width; numeric results remain available.",
+          "error",
+        );
+      }
+    });
+}
+
+function updateResponsivePlotCategory(width) {
+  if (width <= 0) {
+    return;
+  }
+  const compact = plotUsesCompactLayout(plot, width);
+  const crossedCategory =
+    observedPlotCompact !== null && compact !== observedPlotCompact;
+  observedPlotCompact = compact;
+  if (crossedCategory && currentResponse !== null) {
+    queueResponsivePlotRender(compact);
+  }
+}
+
+if (globalThis.ResizeObserver) {
+  const plotResizeObserver = new globalThis.ResizeObserver(([entry]) => {
+    updateResponsivePlotCategory(entry.contentRect.width);
+  });
+  plotResizeObserver.observe(plotContainer);
+} else {
+  globalThis.addEventListener("resize", () => {
+    updateResponsivePlotCategory(plot.getBoundingClientRect().width);
+  });
 }
 
 async function startRuntime() {
@@ -149,6 +215,7 @@ form.addEventListener("submit", async (event) => {
     );
     await globalThis.Plotly.Plots.resize(plot);
     currentResponse = response;
+    observedPlotCompact = plotUsesCompactLayout(plot);
     setExportAvailability(true);
     setStatus(status, "Calculation complete.", "ready");
   } catch (error) {
@@ -205,7 +272,7 @@ document.querySelector("#export-csv").addEventListener("click", () => {
 });
 document.querySelector("#export-figure").addEventListener("click", async () => {
   if (currentResponse) {
-    await exportFigurePng(plot, APP_TITLE);
+    await exportFigurePng(currentResponse, APP_TITLE);
   }
 });
 document.querySelector("#export-dashboard").addEventListener("click", async () => {
@@ -218,7 +285,7 @@ document.querySelector("#export-dashboard").addEventListener("click", async () =
     `${currentResponse.rule.target_probability}; ` +
     `${currentResponse.precision.information_multiplier}x information scenario. ` +
     "Not observed evidence or a sample-size calculation.";
-  await exportDashboardPng(plot, dashboardSummary, APP_TITLE);
+  await exportDashboardPng(currentResponse, dashboardSummary, APP_TITLE);
 });
 document.querySelector("#copy-caption").addEventListener("click", async () => {
   if (currentResponse) {

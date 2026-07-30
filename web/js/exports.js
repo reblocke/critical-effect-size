@@ -1,3 +1,5 @@
+import { renderPlot } from "./renderers.js";
+
 export function filenameSlug(value) {
   const slug = value
     .normalize("NFKD")
@@ -114,8 +116,35 @@ export function exportCsv(response, appTitle) {
   );
 }
 
-export async function exportFigurePng(plotElement, appTitle) {
-  const dataUrl = await globalThis.Plotly.toImage(plotElement, {
+async function exportPlotDataUrl(response, options) {
+  const exportPlot = document.createElement("div");
+  exportPlot.dataset.exportPlot = "";
+  exportPlot.setAttribute("aria-hidden", "true");
+  Object.assign(exportPlot.style, {
+    height: `${options.height}px`,
+    left: `-${options.width + 100}px`,
+    pointerEvents: "none",
+    position: "fixed",
+    top: "0",
+    width: `${options.width}px`,
+  });
+  document.body.append(exportPlot);
+  try {
+    await renderPlot(response, exportPlot, {
+      compact: false,
+      height: options.height,
+      renderMode: "export",
+      width: options.width,
+    });
+    return await globalThis.Plotly.toImage(exportPlot, options);
+  } finally {
+    globalThis.Plotly.purge?.(exportPlot);
+    exportPlot.remove();
+  }
+}
+
+export async function exportFigurePng(response, appTitle) {
+  const dataUrl = await exportPlotDataUrl(response, {
     format: "png",
     height: 1200,
     scale: 1,
@@ -124,8 +153,8 @@ export async function exportFigurePng(plotElement, appTitle) {
   downloadBlob(dataUrlToBlob(dataUrl), `${filenameSlug(appTitle)}-figure.png`);
 }
 
-export async function exportDashboardPng(plotElement, summary, appTitle) {
-  const plotDataUrl = await globalThis.Plotly.toImage(plotElement, {
+export async function exportDashboardPng(response, summary, appTitle) {
+  const plotDataUrl = await exportPlotDataUrl(response, {
     format: "png",
     height: 820,
     scale: 1,

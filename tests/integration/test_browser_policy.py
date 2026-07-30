@@ -93,7 +93,9 @@ def test_browser_effect_options_match_the_released_core_registry() -> None:
 
 
 def test_exports_use_exact_focused_columns_and_separate_png_hooks() -> None:
+    app = (WEB_ROOT / "app.js").read_text(encoding="utf-8")
     exports = (WEB_ROOT / "js" / "exports.js").read_text(encoding="utf-8")
+    renderers = (WEB_ROOT / "js" / "renderers.js").read_text(encoding="utf-8")
 
     for key in [
         "true_effect_display",
@@ -112,6 +114,13 @@ def test_exports_use_exact_focused_columns_and_separate_png_hooks() -> None:
         assert f'key: "{excluded}"' not in exports
     assert "exportDashboardPng" in exports
     assert "exportFigurePng" in exports
+    assert "renderPlot(response, exportPlot" in exports
+    assert 'renderMode: "export"' in exports
+    assert "globalThis.Plotly.toImage(exportPlot" in exports
+    assert "globalThis.Plotly.purge?.(exportPlot)" in exports
+    assert "globalThis.innerWidth" not in renderers
+    assert "plotUsesCompactLayout(plot)" in renderers
+    assert "ResizeObserver" in app
     assert "copyText" in exports
     assert "filenameSlug" in exports
 
