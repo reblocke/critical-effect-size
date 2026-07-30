@@ -5,6 +5,16 @@ All notable changes use a release-oriented record here. This repository follows
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-07-30
+
+- Publish the related-tool-navigation Pages source as a checksum-addressed patch release so the
+  deployed app, annotated tag, and release artifacts resolve to the same commit.
+- Constrain the two-column layout and resize Plotly after the results panel is visible so the
+  calculated app remains contained at a 390 px viewport; cover this with a browser regression.
+- Adopt the checksum-bound `wald-inference` v0.4.1 wheel with its precision-bracketing,
+  extreme-support, and strict ratio-underflow repairs. The focused contract, exports, and
+  exact-versus-legacy distinction remain unchanged; no formula is implemented locally.
+
 ## [0.1.0] - 2026-07-30
 
 ### Added
@@ -36,5 +46,6 @@ All notable changes use a release-oriented record here. This repository follows
 - This is a repeated-study fixed-SE Wald design aid, not observed evidence, an MCID validator,
   clinical decision support, or a study-specific sample-size calculator.
 
-[Unreleased]: https://github.com/reblocke/critical-effect-size/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/reblocke/critical-effect-size/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/reblocke/critical-effect-size/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/reblocke/critical-effect-size/releases/tag/v0.1.0

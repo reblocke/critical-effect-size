@@ -11,13 +11,18 @@ template. There is no backend, telemetry, persistence, cookie, or input-bearing 
 
 ## 2026-07-30 — Released Core is the sole numerical authority
 
-`wald-inference` v0.3.0 owns effect transformations, CI reconstruction, selected-claim
+`wald-inference` v0.4.1 owns effect transformations, CI reconstruction, selected-claim
 probabilities, power curves, critical-effect inversion, information scaling, and the legacy
 benchmark. The app owns strict validation, orchestration, warnings, display payloads, and exports
 but implements no alternative Wald probability or solver.
 
 The dependency is pinned to the release wheel URL and SHA-256 in `pyproject.toml`, `uv.lock`, and
 `browser-stage.toml`. A sibling checkout is never a staging source.
+
+The initial v0.1.0 app used Core v0.3.0. Patch release v0.1.1 adopts v0.4.1 because it repairs an
+active-threshold inverse-precision bracket, extreme finite pairwise support comparison, and strict
+ratio back-transform underflow while retaining the ordinary and frozen parity contracts. The
+repairs remain in Core; no corresponding formula is copied into this app.
 
 ## 2026-07-30 — Exact critical effect is primary
 
