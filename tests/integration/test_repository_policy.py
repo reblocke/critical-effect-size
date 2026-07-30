@@ -109,3 +109,29 @@ def test_public_docs_have_no_unresolved_template_prompts() -> None:
     provenance = (PROJECT_ROOT / "docs" / "PROVENANCE.md").read_text(encoding="utf-8")
     assert "a360bde95c192d8de4f9a3b531e73600ebf3d8b8" in provenance
     assert "6a6c8c33cbef24b5dcbd35706d2292d9d3e5e359" in provenance
+
+
+def test_related_wald_tools_are_exact_in_readme_and_footer() -> None:
+    readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
+    html = (PROJECT_ROOT / "web" / "index.html").read_text(encoding="utf-8")
+    footer = html.split("<footer>", maxsplit=1)[1].split("</footer>", maxsplit=1)[0]
+    links = [
+        "https://reblocke.github.io/wald-inference-tools/",
+        "https://reblocke.github.io/precision-guardrail-planner/",
+        "https://reblocke.github.io/conf_curve_likelihood/",
+        "https://github.com/reblocke/critical-effect-size",
+        "https://github.com/reblocke/wald-inference-core/releases/tag/v0.3.0",
+    ]
+
+    assert "## Related Wald tools" in readme
+    assert "<h2>Related Wald tools</h2>" in footer
+    for link in links:
+        assert link in readme
+        assert f'href="{link}"' in footer
+    assert "wald-inference Core v0.3.0" in readme
+    assert "wald-inference Core v0.3.0" in footer
+    assert "[Privacy](docs/PRIVACY.md)" in readme
+    assert (
+        'href="https://github.com/reblocke/critical-effect-size/blob/main/docs/PRIVACY.md"'
+        in footer
+    )
