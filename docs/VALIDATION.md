@@ -94,18 +94,18 @@ limitation.
 
 For a new release, also record:
 
-- GitHub verification of the signed annotated tag and its exact event-commit target;
+- exact identity of the local and remote annotated tag objects and their event-commit target;
 - containment of that target in protected `main` before repository metadata or code execution;
 - the checksummed GitHub CLI version and archive digest;
 - the nonempty release body extracted only from the matching changelog section;
 - the transferred and redownloaded source archive, browser-stage manifest, and `SHA256SUMS`;
 - exact equality of the draft body, asset names, bytes, and checksums before publication;
-- the enabled immutable-release setting obtained with the administration-read secret; and
+- operator confirmation before tagging that immutable releases are enabled; and
 - post-publication stable lifecycle, immutable provenance, and per-asset verification.
 
 Repository-policy tests cover `.yml` and `.yaml` workflow action pins, retained action major
 families, explicit permissions, disabled checkout credential persistence, disabled release cache,
-signed-tag and protected-main ordering, checksummed GitHub CLI installation, exact draft transfer,
-stable one-time publication, Dependabot coverage, private-reporting guidance, and preservation of
-the app's exact-versus-legacy and negative-scope boundaries. These tests establish engineering
-policy; they do not expand the scientific validation claim.
+annotated-tag identity and protected-main ordering, checksummed GitHub CLI installation, exact
+draft transfer, stable one-time publication, Dependabot coverage, private-reporting guidance, and
+preservation of the app's exact-versus-legacy and negative-scope boundaries. These tests establish
+engineering policy; they do not expand the scientific validation claim.

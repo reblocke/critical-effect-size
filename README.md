@@ -157,13 +157,13 @@ commit SHAs. Dependabot applies a seven-day eligibility cooldown and groups week
 updates for review; it does not merge them automatically. CI has read-only contents access, Pages
 build and deploy privileges are separated, and checkouts do not persist credentials.
 
-For a new version, a signed annotated tag must resolve through GitHub to the event commit, be
+For a new version, an annotated tag's exact remote object must resolve to the event commit, be
 contained in protected `main` history, and equal `v` plus the project version before repository
 code runs. The workflow uses an exact checksummed GitHub CLI, reruns `make verify` without a release
 cache, builds and checksums the source and browser-stage artifacts, and transfers the complete
-bundle to a narrowly write-enabled job. That job requires release immutability through the
-`RELEASE_SETTINGS_READ_TOKEN` Actions secret, creates a draft stable release, redownloads and
-compares the exact body and assets, and publishes the verified draft once.
+bundle to a narrowly write-enabled job. Using only the job-scoped GitHub token, that job creates a
+draft stable release, redownloads and compares the exact body and assets, publishes the verified
+draft once, and verifies the resulting immutable release and asset attestations.
 
 The existing `v0.1.3` prerelease predates this workflow. Any administrative promotion must preserve
 its tag and asset bytes and occur only after archived release, Pages, and hosted-smoke evidence.

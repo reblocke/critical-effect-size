@@ -81,6 +81,25 @@ an 850 px viewport, post-render breakpoint crossings, and mobile-origin export i
 Page-level `scrollWidth` alone is insufficient because an SVG title can be clipped without
 widening the document.
 
+## 2026-07-31 — Release verification uses repository workflow credentials only
+
+This decision supersedes only the signed-tag-verification and dedicated settings-secret portions
+of the 2026-07-30 governance decision below. A release still requires an annotated version tag.
+Before repository code runs, the workflow requires the local tag to be an annotated tag at the
+event commit, binds that tag to the exact remote tag object and event commit, requires protected
+`main` containment, and matches the tag to the authoritative project version. GitHub's
+`verification.verified` and `verification.reason` fields are no longer release gates; a tag may be
+signed, but a valid GitHub signature is not required.
+
+Repository release immutability remains an operator prerequisite, but the workflow no longer
+queries that setting with an external administration-read credential. Remote tag inspection and
+release publication use the job-scoped GitHub token. The publishing job still creates a draft,
+compares its exact body and every downloaded asset before publication, then requires the published
+release to report `isImmutable = true` and verifies the release and each asset attestation with the
+same job-scoped token. The legacy `v0.1.3` exception and all other least-privilege,
+protected-history, deterministic-artifact, and one-time publication controls from the prior
+decision remain in force.
+
 ## 2026-07-30 — Fail-closed repository and stable-release governance
 
 Third-party GitHub Actions retain their reviewed major families and are content-addressed by full
