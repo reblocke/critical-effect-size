@@ -51,26 +51,26 @@ Chromium and WebKit checks. Document any skipped check or warning.
 
 ## Release changes
 
-A new release requires a reviewed pull request and a signed, annotated version tag pointing to the
+A new release requires a reviewed pull request and an annotated version tag pointing to the
 exact reviewed merge commit. The tag must equal `v` plus the authoritative project version, and
 that version needs a nonempty changelog section. The tag workflow:
 
 1. installs an exact checksummed GitHub CLI;
-2. cryptographically verifies the GitHub tag object and binds it to the event commit;
-3. requires the verified tag target to be contained in protected `main` history before reading
+2. binds the exact remote annotated tag object to the event commit;
+3. requires the tag target to be contained in protected `main` history before reading
    project metadata or executing repository code;
 4. verifies the complete suite with read-only contents permission and release caching disabled;
 5. builds and checksums every asset before release creation;
 6. transfers the complete bundle to a narrowly write-enabled publishing job;
-7. requires repository release immutability through an administration-read token;
-8. creates a draft stable release using only the current version's changelog section;
-9. downloads and compares the exact release body and every asset; and
-10. publishes the verified draft once as stable and confirms immutable provenance.
+7. creates a draft stable release using only the current version's changelog section;
+8. downloads and compares the exact release body and every asset; and
+9. publishes the verified draft once as stable, then verifies that the published release is
+   immutable and that every asset matches its release attestation.
 
-Before creating a new tag, enable immutable releases and configure a fine-grained
-repository-administration read token as the `RELEASE_SETTINGS_READ_TOKEN` Actions secret. The
-publishing job uses that secret only for the fail-closed settings query; release creation uses the
-job-scoped GitHub token.
+Before creating a new tag, confirm in repository settings that immutable releases are enabled. The
+workflow uses no external repository-settings credential: remote tag inspection, release
+publication, and post-publication immutable-release and asset verification use the job-scoped
+GitHub token.
 
 The existing `v0.1.3` prerelease predates this workflow. Its one-time administrative promotion may
 occur only after tag, asset, checksum, Pages, and hosted-smoke evidence is archived and before

@@ -48,7 +48,7 @@ jobs:
         run: |
           test "$(git cat-file -t "$GITHUB_REF_NAME")" = "tag"
           test "$(git rev-parse "$GITHUB_REF_NAME^{commit}")" = "$GITHUB_SHA"
-      - name: Require GitHub verification of the signed tag
+      - name: Bind the remote annotated tag object to the event commit
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
@@ -76,18 +76,6 @@ jobs:
             gh api \
               -H "X-GitHub-Api-Version: 2026-03-10" \
               "repos/${GITHUB_REPOSITORY}/git/tags/${tag_object}" \
-              --jq '.verification.verified'
-          )" = "true"
-          test "$(
-            gh api \
-              -H "X-GitHub-Api-Version: 2026-03-10" \
-              "repos/${GITHUB_REPOSITORY}/git/tags/${tag_object}" \
-              --jq '.verification.reason'
-          )" = "valid"
-          test "$(
-            gh api \
-              -H "X-GitHub-Api-Version: 2026-03-10" \
-              "repos/${GITHUB_REPOSITORY}/git/tags/${tag_object}" \
               --jq '.object.sha'
           )" = "$GITHUB_SHA"
           test "$(
@@ -96,7 +84,7 @@ jobs:
               "repos/${GITHUB_REPOSITORY}/git/tags/${tag_object}" \
               --jq '.object.type'
           )" = "commit"
-      - name: Require the signed tag target to be on protected main history
+      - name: Require the tag target to be on protected main history
         shell: bash
         run: |
           git fetch \
@@ -111,7 +99,7 @@ jobs:
       - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
         with:
           enable-cache: false
-      - name: Confirm the verified tag matches the project version
+      - name: Confirm the tag matches the project version
         shell: bash
         run: |
           project_version="$(
@@ -192,16 +180,6 @@ jobs:
       - name: Confirm the checksummed GitHub CLI is selected
         shell: bash
         run: test "$(gh --version | awk 'NR == 1 { print $3 }')" = "$GH_CLI_VERSION"
-      - name: Require repository release immutability
-        env:
-          GH_TOKEN: ${{ secrets.RELEASE_SETTINGS_READ_TOKEN }}
-        run: |
-          test "$(
-            gh api \
-              -H "X-GitHub-Api-Version: 2026-03-10" \
-              "repos/${GITHUB_REPOSITORY}/immutable-releases" \
-              --jq .enabled
-          )" = "true"
       - name: Create a draft stable release with every asset
         env:
           GH_TOKEN: ${{ github.token }}

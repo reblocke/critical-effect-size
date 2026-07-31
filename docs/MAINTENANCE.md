@@ -26,22 +26,21 @@ Action remains pinned to a full commit SHA with its reviewed version in a commen
 
 ## Release
 
-Use a reviewed pull request. Verify the exact expected head, merge, then create a signed, annotated
+Use a reviewed pull request. Verify the exact expected head, merge, then create an annotated
 semantic-version tag at that merge commit. The tag must equal `v` plus the authoritative project
 version and have a nonempty matching changelog section.
 
-The release workflow installs a checksummed GitHub CLI, verifies GitHub's signed tag object and its
-binding to the event commit, and requires that commit to be contained in protected `main` history
-before isolated version parsing or repository code execution. It reruns `make verify` under
-read-only contents permission with release caching disabled, then builds the deterministic source
-archive, browser-stage manifest, SHA-256 checksums, and version-specific release body before a
-release exists.
+The release workflow installs a checksummed GitHub CLI, binds the exact remote annotated tag object
+to the event commit, and requires that commit to be contained in protected `main` history before
+isolated version parsing or repository code execution. It reruns `make verify` under read-only
+contents permission with release caching disabled, then builds the deterministic source archive,
+browser-stage manifest, SHA-256 checksums, and version-specific release body before a release
+exists.
 
 A separate job with only contents-write permission retrieves and rechecks the complete bundle. It
-uses `RELEASE_SETTINGS_READ_TOKEN`, a fine-grained repository-administration read secret, solely to
-fail closed unless immutable releases are enabled. It creates a draft stable release with the
-exact assets, redownloads and compares its body and every asset, publishes once, and confirms the
-release is stable and immutable.
+uses the job-scoped GitHub token to create a draft stable release with the exact assets, redownload
+and compare its body and every asset, and publish once. It then requires the release to be stable
+and immutable and verifies the release and every asset attestation with the same token.
 
 If the workflow fails after draft creation, retain the draft for inspection. Repair through a
 reviewed new commit and version/tag after the failure is understood; never move a published tag or
@@ -55,7 +54,9 @@ unchanged.
 
 Repository settings must retain read-only default workflow permissions, protect `main` and `v*`
 tags, enable private vulnerability reporting and Dependabot security updates, and enable immutable
-releases before a new tag is created.
+releases before a new tag is created. Confirm that setting operationally before tagging; the
+workflow carries no external repository-settings credential and verifies immutability after
+publication with its job-scoped GitHub token.
 
 ## Deprecation
 
