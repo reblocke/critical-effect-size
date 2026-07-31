@@ -2,7 +2,7 @@
 
 ## Status and ownership
 
-Status: active experimental scientific app, version 0.1.3.
+Status: active experimental scientific app, version 0.1.4.
 
 Maintainer: Brian Locke (`@reblocke`). Use repository issues and pull requests for public
 coordination. Scientific behavior changes require review of Core authority, app contract, tests,
@@ -47,10 +47,9 @@ reviewed new commit and version/tag after the failure is understood; never move 
 replace a published asset. The draft is the candidate, and new versions publish once into their
 intended stable lifecycle state.
 
-The existing `v0.1.3` prerelease predates this process. Its one-time administrative promotion may
-occur only after archived tag, asset, checksum, Pages, and hosted-smoke evidence and before
-immutable releases are enabled. Confirm before and after that its tag and asset bytes are
-unchanged.
+The existing `v0.1.3` release predates this process; its one-time promotion to stable is complete.
+Do not move its tag or replace its assets. New versions publish once into their intended stable,
+immutable lifecycle state.
 
 Repository settings must retain read-only default workflow permissions, protect `main` and `v*`
 tags, enable private vulnerability reporting and Dependabot security updates, and enable immutable

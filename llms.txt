@@ -6,7 +6,7 @@ Important boundaries:
 - Exact critical effect is a forward fixed-SE repeated-study operating characteristic.
 - It is not a confidence bound, observed evidence, posterior probability, validated MCID, or
   study-specific sample-size result.
-- Released `wald-inference` v0.4.1 is the sole numerical authority.
+- Released `wald-inference` v0.4.2 is the sole numerical authority.
 - The legacy z-sum value is labeled a closed-form benchmark, never the exact two-tailed solution.
 - Ratio effects use log-scale SE and multiplicative natural-scale symmetry.
 - Python under `src/critical_effect_size/` owns strict orchestration and display payloads.

@@ -1,5 +1,22 @@
 # Decisions
 
+## 2026-07-31 — Adopt stable Core v0.4.2 without numerical change
+
+The v0.1.4 app patch adopts the stable, immutable `wald-inference` v0.4.2 release at commit
+`8afd0a463cc1d2586b8ce5cf92f40900647c3190`, annotated tag object
+`26ea4a721b2dfa07f75c2f388a42d6272c88477c`, and exact wheel SHA-256
+`225331d7b9d7b70e2508eecb92851a92a8c4e245baf412a1eb0f464d85da1349`. Core v0.4.2 changes only
+repository and release governance; it preserves every formula, public API, tolerance, dependency
+resolution, and frozen baseline value, including the exact detectability behavior and unchanged
+legacy benchmark retained by v0.4.1.
+
+The app still delegates every scientific primitive to root-public Core APIs and adds or copies no
+Wald probability, inverse, reconstruction, transformation, information-scaling, or legacy
+benchmark formula. Its focused response, exact-versus-legacy interpretation, exports, privacy
+boundary, and scientific tolerances remain unchanged; exact pin, lock, staging,
+scientific-reference, strict-JSON, Chromium, WebKit, and no-sibling clean-checkout verification are
+release gates.
+
 ## 2026-07-29 — Functional Python contract and verified browser worker
 
 Python is the contract source of truth. The static UI sends strict JSON to a restartable Web Worker
@@ -96,9 +113,10 @@ queries that setting with an external administration-read credential. Remote tag
 release publication use the job-scoped GitHub token. The publishing job still creates a draft,
 compares its exact body and every downloaded asset before publication, then requires the published
 release to report `isImmutable = true` and verifies the release and each asset attestation with the
-same job-scoped token. The legacy `v0.1.3` exception and all other least-privilege,
-protected-history, deterministic-artifact, and one-time publication controls from the prior
-decision remain in force.
+same job-scoped token. The legacy `v0.1.3` one-time promotion is complete; that historical stable
+release predates immutable publication and must not be moved or replaced. All other
+least-privilege, protected-history, deterministic-artifact, and one-time publication controls from
+the prior decision remain in force.
 
 ## 2026-07-30 — Fail-closed repository and stable-release governance
 
