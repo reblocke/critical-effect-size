@@ -5,6 +5,20 @@ All notable changes use a release-oriented record here. This repository follows
 
 ## [Unreleased]
 
+- Pin each GitHub Action to its reviewed full commit SHA without changing the established action
+  major family; separate read-only CI/Pages build permissions from narrowly scoped deployment
+  writes and disable persisted checkout credentials.
+- Add grouped review-only Dependabot updates with a seven-day eligibility cooldown, private
+  security reporting, contribution guidance, scoped issue and pull-request templates, and policy
+  regressions for the repository's scientific, privacy, accessibility, and supply-chain
+  boundaries.
+- Replace direct prerelease creation with a fail-closed future release path that verifies a signed
+  annotated tag and protected-`main` containment before repository code runs, installs a
+  checksummed GitHub CLI, builds and transfers exact checksummed assets, verifies the draft body
+  and redownloaded assets, requires release immutability through an administration-read secret,
+  and publishes once as stable. The app version, Core pin, calculations, focused response, browser
+  behavior, and existing `v0.1.3` release artifacts are unchanged.
+
 ## [0.1.3] - 2026-07-30
 
 - State the declared app version, canonical release record, experimental release maturity,

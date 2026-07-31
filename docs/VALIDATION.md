@@ -80,6 +80,7 @@ accessibility, and privacy cases through Pyodide.
 ```bash
 uv sync --locked
 uv run playwright install chromium webkit
+uvx --from zizmor==1.28.0 zizmor .
 make verify
 uv run pytest -q tests/regression/ tests/scientific_reference/
 uv run python scripts/stage_browser_packages.py
@@ -90,3 +91,21 @@ git status --short
 For each release, record the exact commit/tag, Core artifact hash, generated stage manifest hash,
 local/CI results, release assets, Pages deployment, hosted smoke, and any skipped check or known
 limitation.
+
+For a new release, also record:
+
+- GitHub verification of the signed annotated tag and its exact event-commit target;
+- containment of that target in protected `main` before repository metadata or code execution;
+- the checksummed GitHub CLI version and archive digest;
+- the nonempty release body extracted only from the matching changelog section;
+- the transferred and redownloaded source archive, browser-stage manifest, and `SHA256SUMS`;
+- exact equality of the draft body, asset names, bytes, and checksums before publication;
+- the enabled immutable-release setting obtained with the administration-read secret; and
+- post-publication stable lifecycle, immutable provenance, and per-asset verification.
+
+Repository-policy tests cover `.yml` and `.yaml` workflow action pins, retained action major
+families, explicit permissions, disabled checkout credential persistence, disabled release cache,
+signed-tag and protected-main ordering, checksummed GitHub CLI installation, exact draft transfer,
+stable one-time publication, Dependabot coverage, private-reporting guidance, and preservation of
+the app's exact-versus-legacy and negative-scope boundaries. These tests establish engineering
+policy; they do not expand the scientific validation claim.

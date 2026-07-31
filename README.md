@@ -118,7 +118,8 @@ device. It does not diagnose, recommend treatment, select a clinical MCID, or va
 design.
 
 See [scientific scope](docs/SCIENTIFIC_SCOPE.md), [validation](docs/VALIDATION.md),
-[privacy](docs/PRIVACY.md), and [provenance](docs/PROVENANCE.md).
+[privacy](docs/PRIVACY.md), [provenance](docs/PROVENANCE.md), and the
+[private security-reporting policy](SECURITY.md).
 
 ## Related Wald tools
 
@@ -148,6 +149,25 @@ make e2e
 make e2e-webkit-smoke
 make serve
 ```
+
+## Repository governance and future releases
+
+Third-party GitHub Actions retain their established major families and are pinned to reviewed full
+commit SHAs. Dependabot applies a seven-day eligibility cooldown and groups weekly `uv` and Actions
+updates for review; it does not merge them automatically. CI has read-only contents access, Pages
+build and deploy privileges are separated, and checkouts do not persist credentials.
+
+For a new version, a signed annotated tag must resolve through GitHub to the event commit, be
+contained in protected `main` history, and equal `v` plus the project version before repository
+code runs. The workflow uses an exact checksummed GitHub CLI, reruns `make verify` without a release
+cache, builds and checksums the source and browser-stage artifacts, and transfers the complete
+bundle to a narrowly write-enabled job. That job requires release immutability through the
+`RELEASE_SETTINGS_READ_TOKEN` Actions secret, creates a draft stable release, redownloads and
+compares the exact body and assets, and publishes the verified draft once.
+
+The existing `v0.1.3` prerelease predates this workflow. Any administrative promotion must preserve
+its tag and asset bytes and occur only after archived release, Pages, and hosted-smoke evidence.
+See [CONTRIBUTING.md](CONTRIBUTING.md) and [maintenance](docs/MAINTENANCE.md).
 
 ## Source context
 

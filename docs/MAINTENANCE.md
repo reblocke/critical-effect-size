@@ -11,7 +11,10 @@ public wording, and export interpretation.
 ## Dependency updates
 
 Review Pyodide, Plotly, Python, uv, Ruff, pytest, Playwright, and GitHub Actions updates
-deliberately. For a `wald-inference` upgrade:
+deliberately. Dependabot applies a seven-day eligibility cooldown and groups weekly `uv` and GitHub
+Actions proposals for human review; it does not authorize automatic merging. Every third-party
+Action remains pinned to a full commit SHA with its reviewed version in a comment. For a
+`wald-inference` upgrade:
 
 1. review its release notes, exact API, and scientific changes;
 2. bind the exact release wheel URL and SHA-256 in `pyproject.toml`, `uv.lock`, and
@@ -23,10 +26,36 @@ deliberately. For a `wald-inference` upgrade:
 
 ## Release
 
-Use a reviewed pull request. Verify the exact expected head, merge, then create an annotated
-semantic-version tag at that merge commit. The release workflow reruns `make verify` and publishes
-a prerelease with a deterministic source archive, browser-stage manifest, and SHA-256 checksums.
-Promote only after Pages and hosted smoke checks pass.
+Use a reviewed pull request. Verify the exact expected head, merge, then create a signed, annotated
+semantic-version tag at that merge commit. The tag must equal `v` plus the authoritative project
+version and have a nonempty matching changelog section.
+
+The release workflow installs a checksummed GitHub CLI, verifies GitHub's signed tag object and its
+binding to the event commit, and requires that commit to be contained in protected `main` history
+before isolated version parsing or repository code execution. It reruns `make verify` under
+read-only contents permission with release caching disabled, then builds the deterministic source
+archive, browser-stage manifest, SHA-256 checksums, and version-specific release body before a
+release exists.
+
+A separate job with only contents-write permission retrieves and rechecks the complete bundle. It
+uses `RELEASE_SETTINGS_READ_TOKEN`, a fine-grained repository-administration read secret, solely to
+fail closed unless immutable releases are enabled. It creates a draft stable release with the
+exact assets, redownloads and compares its body and every asset, publishes once, and confirms the
+release is stable and immutable.
+
+If the workflow fails after draft creation, retain the draft for inspection. Repair through a
+reviewed new commit and version/tag after the failure is understood; never move a published tag or
+replace a published asset. The draft is the candidate, and new versions publish once into their
+intended stable lifecycle state.
+
+The existing `v0.1.3` prerelease predates this process. Its one-time administrative promotion may
+occur only after archived tag, asset, checksum, Pages, and hosted-smoke evidence and before
+immutable releases are enabled. Confirm before and after that its tag and asset bytes are
+unchanged.
+
+Repository settings must retain read-only default workflow permissions, protect `main` and `v*`
+tags, enable private vulnerability reporting and Dependabot security updates, and enable immutable
+releases before a new tag is created.
 
 ## Deprecation
 
