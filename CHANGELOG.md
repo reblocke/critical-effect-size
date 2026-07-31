@@ -5,6 +5,15 @@ All notable changes use a release-oriented record here. This repository follows
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-07-31
+
+- Adopt the official stable, immutable `wald-inference` v0.4.2 wheel from annotated tag target
+  `8afd0a463cc1d2586b8ce5cf92f40900647c3190`, pinned to SHA-256
+  `225331d7b9d7b70e2508eecb92851a92a8c4e245baf412a1eb0f464d85da1349`. Core v0.4.2 changes
+  release governance only and preserves every numerical API and frozen baseline value.
+- Synchronize app version 0.1.4 across package metadata, citation, browser staging, visible runtime
+  copy, lockfile, and tests while preserving the exact critical-effect response/export contracts,
+  exact-versus-legacy interpretation, scientific tolerances, and client-side privacy boundary.
 - Pin each GitHub Action to its reviewed full commit SHA without changing the established action
   major family; separate read-only CI/Pages build permissions from narrowly scoped deployment
   writes and disable persisted checkout credentials.
@@ -18,8 +27,9 @@ All notable changes use a release-oriented record here. This repository follows
   verifies the draft body and redownloaded assets. The path uses only the job-scoped GitHub token,
   publishes once as stable, and verifies the resulting immutable release and asset attestations;
   it does not require GitHub signature verification, an external settings credential, or a
-  prepublication immutable-settings query. The app version, Core pin, calculations, focused
-  response, browser behavior, and existing `v0.1.3` release artifacts are unchanged.
+  prepublication immutable-settings query. Calculations, focused response, browser behavior, and
+  historical `v0.1.3` release artifacts remain unchanged; its completed stable promotion, tag, and
+  asset bytes are not altered by this release.
 
 ## [0.1.3] - 2026-07-30
 
@@ -82,7 +92,8 @@ All notable changes use a release-oriented record here. This repository follows
 - This is a repeated-study fixed-SE Wald design aid, not observed evidence, an MCID validator,
   clinical decision support, or a study-specific sample-size calculator.
 
-[Unreleased]: https://github.com/reblocke/critical-effect-size/compare/v0.1.3...HEAD
+[Unreleased]: https://github.com/reblocke/critical-effect-size/compare/v0.1.4...HEAD
+[0.1.4]: https://github.com/reblocke/critical-effect-size/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/reblocke/critical-effect-size/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/reblocke/critical-effect-size/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/reblocke/critical-effect-size/compare/v0.1.0...v0.1.1

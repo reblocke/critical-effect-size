@@ -30,14 +30,17 @@ Its ignored `.applet-template-initialized.json` report recorded no unresolved id
 
 ## Scientific Core
 
-The app consumes released `wald-inference` v0.4.1, tagged at peeled commit
-`f4613177b6dc81d194aa70762152de2bfa86663b`. The official wheel SHA-256 is
-`d7272023f65088729d3ff997cab7cac57b84f22ac6108244ec2170434557d99b`.
+The app consumes the stable, immutable `wald-inference` v0.4.2 release, annotated tag object
+`26ea4a721b2dfa07f75c2f388a42d6272c88477c` at peeled commit
+`8afd0a463cc1d2586b8ce5cf92f40900647c3190`. The official wheel SHA-256 is
+`225331d7b9d7b70e2508eecb92851a92a8c4e245baf412a1eb0f464d85da1349`.
 
 Core v0.3.0 initially supplied the exact selected-claim probability, vectorized power-curve, and
 critical-effect inverse APIs. Core v0.4.1 retains those contracts and the unchanged pre-split
 legacy z-sum benchmark while repairing active-threshold inverse-precision bracketing, extreme
 pairwise support comparison, and strict ratio back-transform underflow.
+Core v0.4.2 changes repository and release governance only while preserving every numerical
+formula, public API, tolerance, dependency resolution, and frozen baseline value from v0.4.1.
 
 ## Integrated behavior fixture
 

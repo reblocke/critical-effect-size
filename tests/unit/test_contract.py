@@ -86,7 +86,7 @@ def test_contract_returns_strict_json() -> None:
         "reference_effects",
         "warnings",
     ]
-    assert response["meta"]["core_version"] == "0.4.1"
+    assert response["meta"]["core_version"] == "0.4.2"
 
 
 @pytest.mark.parametrize(

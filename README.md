@@ -9,10 +9,10 @@ calculations.
 
 ## Version, release, and citation
 
-Current app version: **0.1.3**.
+Current app version: **0.1.4**.
 
 Canonical release record:
-[`v0.1.3`](https://github.com/reblocke/critical-effect-size/releases/tag/v0.1.3).
+[`v0.1.4`](https://github.com/reblocke/critical-effect-size/releases/tag/v0.1.4).
 Release maturity: experimental software. GitHub publication state is recorded on the versioned
 release page.
 
@@ -33,7 +33,7 @@ delta = (theta_true - theta_null) / SE
 ```
 
 the app uses the exact normal/Wald tail probability and inverse implemented by released
-[`wald-inference` v0.4.1](https://github.com/reblocke/wald-inference-core/releases/tag/v0.4.1).
+[`wald-inference` v0.4.2](https://github.com/reblocke/wald-inference-core/releases/tag/v0.4.2).
 For a two-sided rule it reports paired effects around the null. For a one-sided rule it reports
 only the selected direction.
 
@@ -74,7 +74,7 @@ They are multiplicatively, not arithmetically, symmetric around the null ratio.
 ## Exact result versus legacy benchmark
 
 The primary result solves the exact selected-claim probability equation through released Core
-v0.4.1. When the rule is two-sided with alpha 0.05 and target 0.80, the app also displays the
+v0.4.2. When the rule is two-sided with alpha 0.05 and target 0.80, the app also displays the
 preserved historical benchmark
 
 ```text
@@ -91,7 +91,7 @@ browser form
   -> dedicated Web Worker
   -> hash-verified generated Python bundle
   -> critical_effect_size.contract.calculate_json
-  -> wald-inference 0.4.1 exact APIs
+  -> wald-inference 0.4.2 exact APIs
   -> strict focused JSON
   -> textual summaries + Plotly + explicit exports
 ```
@@ -99,9 +99,9 @@ browser form
 - `src/critical_effect_size/` owns validation, orchestration, display payloads, and exports.
 - `wald-inference` owns every Wald probability, inverse, reconstruction, transformation, legacy
   benchmark, and information-scaling primitive.
-- `browser-stage.toml`, `pyproject.toml`, and `uv.lock` bind the Core wheel to its v0.4.1 release URL
+- `browser-stage.toml`, `pyproject.toml`, and `uv.lock` bind the Core wheel to its v0.4.2 release URL
   and SHA-256
-  `d7272023f65088729d3ff997cab7cac57b84f22ac6108244ec2170434557d99b`.
+  `225331d7b9d7b70e2508eecb92851a92a8c4e245baf412a1eb0f464d85da1349`.
 - `scripts/stage_browser_packages.py` stages the installed app and Core from the locked
   environment. Generated `web/assets/py/` is ignored and verified byte-for-byte before import.
 
@@ -129,7 +129,7 @@ See [scientific scope](docs/SCIENTIFIC_SCOPE.md), [validation](docs/VALIDATION.m
 [Repository](https://github.com/reblocke/critical-effect-size)
 
 Numerical authority:
-[wald-inference Core v0.4.1](https://github.com/reblocke/wald-inference-core/releases/tag/v0.4.1).
+[wald-inference Core v0.4.2](https://github.com/reblocke/wald-inference-core/releases/tag/v0.4.2).
 [Privacy](docs/PRIVACY.md) documents the client-side, no-storage boundary.
 
 ## Local development
@@ -165,8 +165,9 @@ bundle to a narrowly write-enabled job. Using only the job-scoped GitHub token, 
 draft stable release, redownloads and compares the exact body and assets, publishes the verified
 draft once, and verifies the resulting immutable release and asset attestations.
 
-The existing `v0.1.3` prerelease predates this workflow. Any administrative promotion must preserve
-its tag and asset bytes and occur only after archived release, Pages, and hosted-smoke evidence.
+The existing `v0.1.3` release predates this workflow; its one-time promotion to stable is complete.
+Do not move its tag or replace its assets. New versions publish once into their intended stable,
+immutable lifecycle state.
 See [CONTRIBUTING.md](CONTRIBUTING.md) and [maintenance](docs/MAINTENANCE.md).
 
 ## Source context

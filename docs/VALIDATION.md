@@ -2,23 +2,25 @@
 
 ## Numerical authority
 
-The app pins released `wald-inference` v0.4.1 from:
+The app pins the stable, immutable `wald-inference` v0.4.2 release from:
 
 ```text
-https://github.com/reblocke/wald-inference-core/releases/download/v0.4.1/
-wald_inference-0.4.1-py3-none-any.whl
+https://github.com/reblocke/wald-inference-core/releases/download/v0.4.2/
+wald_inference-0.4.2-py3-none-any.whl
 ```
 
 The wheel SHA-256 is
-`d7272023f65088729d3ff997cab7cac57b84f22ac6108244ec2170434557d99b`; annotated tag
-`v0.4.1` peels to `f4613177b6dc81d194aa70762152de2bfa86663b`. Core release run
-`30545293704` and main CI run `30545147370` were green, and the released Core retained zero
+`225331d7b9d7b70e2508eecb92851a92a8c4e245baf412a1eb0f464d85da1349`; annotated tag object
+`26ea4a721b2dfa07f75c2f388a42d6272c88477c` peels to
+`8afd0a463cc1d2586b8ce5cf92f40900647c3190`. Core release run `30629025349` and main CI run
+`30628647428` were green, and the released Core retained zero
 difference across the frozen 23,095-value pre-split parity contract.
 
 The app keeps orchestration and presentation local but delegates every scientific primitive to
-that released Core. The v0.4.1 repair release corrects active-threshold inverse-precision
-bracketing, extreme pairwise support comparison, and strict ratio back-transform underflow; this
-app adds no local formula.
+that released Core. Core v0.4.2 changes repository and release governance only while preserving
+every numerical API and frozen value from v0.4.1, including its active-threshold inverse-precision,
+extreme pairwise support, and strict ratio-underflow repairs. This app adds no local formula and
+retains its existing scientific tolerances without widening.
 
 ## Independent scientific targets
 

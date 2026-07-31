@@ -381,7 +381,7 @@ def test_initialized_identity_author_license_and_release_metadata_are_exact() ->
     assert "title: Wald Critical Effect Size" in citation
     assert "given-names: Brian" in citation
     assert "family-names: Locke" in citation
-    assert "date-released: 2026-07-30" in citation
+    assert "date-released: 2026-07-31" in citation
 
 
 def test_public_docs_have_no_unresolved_template_prompts() -> None:
@@ -420,6 +420,8 @@ def test_readme_records_current_version_release_status_and_citation() -> None:
     assert "[`CITATION.cff`](CITATION.cff)" in readme
     assert "cite the exact tagged release used" in normalized_readme
     assert "cite the exact repository commit instead" in normalized_readme
+    assert "one-time promotion to stable is complete." in normalized_readme
+    assert "`v0.1.3` prerelease predates this workflow" not in readme
 
 
 def test_related_wald_tools_are_exact_in_readme_and_footer() -> None:
@@ -431,7 +433,7 @@ def test_related_wald_tools_are_exact_in_readme_and_footer() -> None:
         "https://reblocke.github.io/precision-guardrail-planner/",
         "https://reblocke.github.io/conf_curve_likelihood/",
         "https://github.com/reblocke/critical-effect-size",
-        "https://github.com/reblocke/wald-inference-core/releases/tag/v0.4.1",
+        "https://github.com/reblocke/wald-inference-core/releases/tag/v0.4.2",
     ]
 
     assert "## Related Wald tools" in readme
@@ -439,8 +441,8 @@ def test_related_wald_tools_are_exact_in_readme_and_footer() -> None:
     for link in links:
         assert link in readme
         assert f'href="{link}"' in footer
-    assert "wald-inference Core v0.4.1" in readme
-    assert "wald-inference Core v0.4.1" in footer
+    assert "wald-inference Core v0.4.2" in readme
+    assert "wald-inference Core v0.4.2" in footer
     assert "[Privacy](docs/PRIVACY.md)" in readme
     assert (
         'href="https://github.com/reblocke/critical-effect-size/blob/main/docs/PRIVACY.md"'

@@ -74,7 +74,7 @@ distribution. The observed estimate is not used to create an â€œobserved powerâ€
 
 ## Formula authority and assumptions
 
-Released `wald-inference` v0.4.1 is the sole numerical authority. The app calls:
+Released `wald-inference` v0.4.2 is the sole numerical authority. The app calls:
 
 - `reconstruct_wald_from_95_ci`;
 - `to_working_scale` and `from_working_scale`;

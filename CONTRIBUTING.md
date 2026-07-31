@@ -72,10 +72,9 @@ workflow uses no external repository-settings credential: remote tag inspection,
 publication, and post-publication immutable-release and asset verification use the job-scoped
 GitHub token.
 
-The existing `v0.1.3` prerelease predates this workflow. Its one-time administrative promotion may
-occur only after tag, asset, checksum, Pages, and hosted-smoke evidence is archived and before
-immutable releases are enabled. Promotion must not rebuild assets or move the tag. New releases use
-the draft as the candidate and publish once into their intended stable lifecycle state.
+The existing `v0.1.3` release predates this workflow; its one-time promotion to stable is complete.
+Do not rebuild, move, or replace it. New releases use the draft as the candidate and publish once
+into their intended stable, immutable lifecycle state.
 
 If a new release job fails after draft creation, leave the release as a draft for inspection. Do
 not replace assets or move a tag after publication.
