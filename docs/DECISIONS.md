@@ -80,3 +80,29 @@ The layout is guarded with real Plotly text bounding boxes at 390 px, a narrow t
 an 850 px viewport, post-render breakpoint crossings, and mobile-origin export inspection.
 Page-level `scrollWidth` alone is insufficient because an SVG title can be clipped without
 widening the document.
+
+## 2026-07-30 — Fail-closed repository and stable-release governance
+
+Third-party GitHub Actions retain their reviewed major families and are content-addressed by full
+commit SHA. Dependabot applies a seven-day eligibility cooldown and proposes grouped weekly `uv`
+and Actions updates for review without automatic merging. CI and Pages build jobs have explicit
+read-only contents permission; Pages deployment and release publication receive only their
+required writes, and every checkout disables persisted credentials.
+
+A new release requires a GitHub-verified signed annotated tag bound to the event commit and
+contained in protected `main` history. These checks precede isolated project-version parsing or
+repository code execution. Release verification disables dependency caching, installs an exact
+checksummed GitHub CLI, reruns the complete suite, and constructs a deterministic source archive,
+browser-stage manifest, checksum file, and bounded version-specific release body before any
+release exists.
+
+A separate publishing job receives the verified bundle and only contents-write permission. A
+dedicated repository-administration read secret checks that immutable releases are enabled. The
+job creates a draft stable release, compares the GitHub-returned body and every redownloaded asset
+with the verified local bundle, and publishes once only after exact agreement. Published tags,
+assets, and lifecycle state are never rewritten.
+
+The existing `v0.1.3` prerelease is a legacy exception: one administrative promotion may occur
+only before immutability is enabled and only after tag, asset, checksum, Pages, and hosted-smoke
+evidence proves that no release bytes or commit identity change. This governance decision changes
+no scientific calculation, focused response, browser behavior, version, or exact Core dependency.

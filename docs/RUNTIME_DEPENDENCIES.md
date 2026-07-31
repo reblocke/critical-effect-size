@@ -32,6 +32,31 @@ file against its wheel RECORD.
 runner; Playwright and pytest-playwright drive Chromium/WebKit; Hypothesis remains available for
 bounded property tests. These are development-only and are not staged into the app.
 
+## Repository automation
+
+Every third-party GitHub Action is pinned in `.github/workflows/` to a reviewed full commit SHA
+with its exact version in a comment. The established action major families are retained:
+checkout 6, setup-python 6, setup-uv 7, upload-artifact 7, configure-pages 5,
+upload-pages-artifact 4, and deploy-pages 4. The split release handoff adds
+download-artifact 8. Their upstream repositories report MIT licensing; source repository and
+content-addressed revision are machine-readable in the workflow files.
+
+Credentialed release steps install GitHub CLI 2.93.0 from:
+
+```text
+https://github.com/cli/cli/releases/download/v2.93.0/gh_2.93.0_linux_amd64.tar.gz
+```
+
+The required SHA-256 is
+`02d1290eba130e0b896f3709ffff22e1c75a51475ddb70476a85abc6b5807af0`.
+GitHub CLI is MIT licensed. The version, upstream checksum manifest, action tags/commits, and
+upstream repository licenses were reviewed on 2026-07-30.
+
+Dependabot applies a seven-day eligibility cooldown and proposes grouped weekly `uv` and Actions
+updates for review without automatic merging. Workflow static analysis for this governance change
+used MIT-licensed zizmor 1.28.0. Neither tool is part of the client-side runtime or scientific
+calculation path.
+
 ## Licensing boundary
 
 Repository-authored code, documentation, tests, and synthetic fixtures are MIT licensed.
