@@ -149,6 +149,8 @@ def test_workflow_permissions_credentials_and_release_cache_are_fail_closed() ->
         "contents: write # Required only to create and publish this repository's release."
         in release
     )
+    assert "attestations: read # Required to verify the immutable release" in publish
+    assert "attestations: read" not in verify_build
     assert "pages: write" not in publish
     assert "id-token: write" not in publish
 
@@ -159,6 +161,35 @@ def test_workflow_permissions_credentials_and_release_cache_are_fail_closed() ->
     checkout_count = workflow_text.count("uses: actions/checkout@")
     assert checkout_count > 0
     assert workflow_text.count("persist-credentials: false") == checkout_count
+
+
+def test_release_note_guards_reject_whitespace_before_transfer_and_publish(
+    tmp_path: Path,
+) -> None:
+    release = (WORKFLOW_ROOT / "release.yml").read_text(encoding="utf-8")
+    verify_build, publish = release.split("\n  publish:", maxsplit=1)
+
+    assert "grep -q '[^[:space:]]' \"$bundle/release-notes.md\"" in verify_build
+    assert "grep -q '[^[:space:]]' dist/release-notes.md" in publish
+    assert release.count("grep -q '[^[:space:]]'") == 2
+    assert 'test -s "$bundle/release-notes.md"' not in release
+    assert "test -s dist/release-notes.md" not in release
+
+    notes = tmp_path / "release-notes.md"
+    for whitespace_only in ("", "\n", " \t\r\n"):
+        notes.write_text(whitespace_only, encoding="utf-8")
+        result = subprocess.run(
+            ["grep", "-q", "[^[:space:]]", str(notes)],
+            check=False,
+        )
+        assert result.returncode == 1
+
+    notes.write_text("\nRelease notes\n", encoding="utf-8")
+    result = subprocess.run(
+        ["grep", "-q", "[^[:space:]]", str(notes)],
+        check=False,
+    )
+    assert result.returncode == 0
 
 
 def test_release_is_signed_main_contained_draft_first_stable_and_immutable() -> None:
