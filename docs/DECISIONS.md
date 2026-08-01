@@ -1,5 +1,14 @@
 # Decisions
 
+## 2026-07-31 — Publish reviewed maintenance updates as v0.1.5
+
+The v0.1.5 patch records reviewed build/test dependency and GitHub Actions updates, keeps the
+repository-policy allowlist synchronized to the exact reviewed Action pins, and restores exact
+identity among the hosted Pages commit, package metadata, citation, annotated tag, and immutable
+release artifacts. These maintenance updates do not change the checksum-pinned Core v0.4.2
+authority, any critical-effect result, exact-versus-legacy interpretation, focused response or
+export contract, scientific tolerance, browser behavior, or client-side privacy boundary.
+
 ## 2026-07-31 — Adopt stable Core v0.4.2 without numerical change
 
 The v0.1.4 app patch adopts the stable, immutable `wald-inference` v0.4.2 release at commit

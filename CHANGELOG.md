@@ -5,6 +5,16 @@ All notable changes use a release-oriented record here. This repository follows
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-07-31
+
+- Update the locked test/build toolchain to pytest 9.1.1 and setuptools 83.0.0.
+- Update the reviewed, full-SHA GitHub Actions pins used by CI, Pages, and release workflows, and
+  keep the exact reviewed pin set enforced by repository-policy tests.
+- Publish the maintenance-only app state as an immutable patch release so the hosted Pages commit,
+  package metadata, citation, and release artifacts identify the same source commit.
+- Preserve the exact Core v0.4.2 pin, critical-effect calculations, exact-versus-legacy
+  interpretation, focused response/export contracts, and client-side privacy boundary.
+
 ## [0.1.4] - 2026-07-31
 
 - Adopt the official stable, immutable `wald-inference` v0.4.2 wheel from annotated tag target
@@ -92,7 +102,8 @@ All notable changes use a release-oriented record here. This repository follows
 - This is a repeated-study fixed-SE Wald design aid, not observed evidence, an MCID validator,
   clinical decision support, or a study-specific sample-size calculator.
 
-[Unreleased]: https://github.com/reblocke/critical-effect-size/compare/v0.1.4...HEAD
+[Unreleased]: https://github.com/reblocke/critical-effect-size/compare/v0.1.5...HEAD
+[0.1.5]: https://github.com/reblocke/critical-effect-size/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/reblocke/critical-effect-size/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/reblocke/critical-effect-size/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/reblocke/critical-effect-size/compare/v0.1.1...v0.1.2
