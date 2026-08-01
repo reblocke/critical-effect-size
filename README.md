@@ -19,6 +19,18 @@ release page.
 For software citation, use [`CITATION.cff`](CITATION.cff) and cite the exact tagged release used.
 If you use unreleased code, cite the exact repository commit instead.
 
+## Why this app exists and intended use
+
+Detectability questions are often mixed with interpretation of an observed result or with claims
+about scientific importance. This focused app isolates the prospective inverse question: for a
+fixed Wald precision and selected-claim rule, how far from the null must an assumed true effect be
+to reach a specified repeated-study probability?
+
+It is intended for researchers, methodologists, educators, and reviewers exploring one-parameter
+design sensitivity, comparing precision scenarios, or teaching the distinction between
+detectability and importance. It is not intended to infer evidence from a completed study, choose
+a meaningful clinical threshold, or replace design-specific planning.
+
 ## Question answered
 
 Given a working-scale standard error, selected-claim rule, alpha, and target probability, what is
@@ -170,12 +182,22 @@ Do not move its tag or replace its assets. New versions publish once into their 
 immutable lifecycle state.
 See [CONTRIBUTING.md](CONTRIBUTING.md) and [maintenance](docs/MAINTENANCE.md).
 
-## Source context
+## Method reference and citation roles
 
-[Perugini et al., *Advances in Methods and Practices in Psychological Science* (2025)](https://journals.sagepub.com/doi/10.1177/25152459251335298)
-is carried forward from the integrated workbench for critical-effect-size design rationale
-(retrieved 2026-04-23). The transparent definitions above and released Core behavior govern the
-implemented quantity; no publication figure, table, dataset, or substantial text is copied.
+Perugini A, Gambarota F, Toffalini E, Lakens D, Pastore M, Finos L, Core Team Psicostat, Altoè G.
+The Benefits of Reporting Critical-Effect-Size Values. *Advances in Methods and Practices in
+Psychological Science*. 2025;8(2):25152459251335298. doi:
+[10.1177/25152459251335298](https://doi.org/10.1177/25152459251335298).
+
+The source was retrieved on 2026-04-23 and is distributed under
+[CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/). It motivates
+critical-effect-size design reasoning; it does not define or validate this app's exact inverse,
+probability target, supported effect registry, or legacy benchmark. The transparent definitions
+above and the exact pinned Core release govern the implemented quantity. No publication figure,
+table, dataset, code, or substantial text is copied.
+
+When discussing the method context, cite Perugini et al.; independently cite the exact software
+release or commit used through [`CITATION.cff`](CITATION.cff).
 
 ## License and citation
 
