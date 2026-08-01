@@ -6,7 +6,7 @@ pyodide_packages = ["numpy", "scipy"]
 role = "app"
 distribution = "critical-effect-size"
 import_name = "critical_effect_size"
-version = "0.1.4"
+version = "0.1.5"
 source = "project"
 
 [[packages]]

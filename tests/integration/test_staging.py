@@ -49,7 +49,7 @@ def test_stage_manifest_records_versions_provenance_files_and_hashes(
         "role": "app",
         "distribution": "critical-effect-size",
         "import_name": "critical_effect_size",
-        "version": "0.1.4",
+        "version": "0.1.5",
     }
     assert app["artifact_url"] is None
     assert app["artifact_sha256"] is None
